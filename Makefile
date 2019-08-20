@@ -6,14 +6,14 @@ CPPFLAGS ?=
 LDFLAGS ?=
 
 # Dependency locations
-GSDIR ?=
+EXADIR ?=
 
 # Build options
 DEBUG ?= 1
 SHARED ?= 0
 
 # Install prefix
-PREFIX ?= /home/thilina/local/
+PREFIX ?= $(HOME)/local/exaSort
 
 # Meta info about the package
 SRCDIR ?= src
@@ -24,29 +24,31 @@ SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
 DEPS = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
 
-INCFLAGS = -I$(SRCDIR) -I$(GSDIR)/include
+INCFLAGS = -I$(SRCDIR) -I$(EXADIR)/include
 compile.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c
 link.o = $(AR) crs
-LIBS = $(GSDIR)/lib/libgs.a
+LDFLAGS = $(EXADIR)/lib/libexa.a
 EXT = a
 
 ifneq ($(SHARED),0)
-  CFLAGS += -fPIC
-  link.o += $(CC) $(LDFLAGS) -shared -o
-  LIBS = -L$(GSDIR)/lib -lgs
-  EXT = so
+  CFLAGS  += -fPIC
+  link.o   = $(CC) $(LDFLAGS) -shared -o
+  LDFLAGS += -L$(EXADIR)/lib -lexa
+  EXT      = so
 endif
+
+LIBNAME = libexaSort.$(EXT)
 
 .PHONY: lib
 lib: $(OBJS)
-	$(link.o) $(BUILDDIR)/libexa.$(EXT) $(OBJS) $(LIBS) $(LDFLAGS)
+	$(link.o) $(BUILDDIR)/$(LIBNAME) $(OBJS) $(LDFLAGS)
 
 .PHONY: install
 install:
 	@mkdir -p $(DESTDIR)$(PREFIX)/lib
 	@mkdir -p $(DESTDIR)$(PREFIX)/include
-	@cp $(SRCDIR)/*.h $(DESTDIR)$(PREFIX)/include/
-	@cp $(BUILDDIR)/libexa.$(EXT) $(DESTDIR)$(PREFIX)/lib/
+	@cp $(SRCDIR)/*.h $(EXADIR)/include/*.h $(DESTDIR)$(PREFIX)/include/
+	@cp $(BUILDDIR)/$(LIBNAME) $(DESTDIR)$(PREFIX)/lib/
 
 $(DEPDIR)/%.d: $(SRCDIR)/%.c
 	@$(CPP) $(CFLAGS) $(INCFLAGS) $< -MM -MT $(@:$(DEPDIR)/%.d=$(BUILDDIR)/%.deps) >$@
