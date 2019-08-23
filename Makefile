@@ -6,6 +6,7 @@ CPPFLAGS ?=
 LDFLAGS ?=
 
 # Dependency locations
+GSDIR ?=
 EXADIR ?=
 
 # Build options
@@ -28,9 +29,13 @@ OBJS     = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.src.o,$(SRCS))
 OBJS    += $(patsubst $(EXAMPLEDIR)/%.c,$(BUILDDIR)/%.ex.o,$(EXAMPLES))
 DEPS     = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
 
-INCFLAGS  = -I$(SRCDIR) -I$(EXADIR)/include
+INCFLAGS  = -I$(SRCDIR) -I$(GSDIR)/include -I$(EXADIR)/include
 compile.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS)
-LDFLAGS  += -L$(EXADIR)/lib -lexa
+LDFLAGS  += -L$(EXADIR)/lib -lexa -L$(GSDIR)/lib -lgs
+
+ifneq ($(DEBUG),0)
+  CFLAGS += -g
+endif
 
 .PHONY: example
 example: $(EXAMPLES:$(EXAMPLEDIR)/%.c=$(BUILDDIR)/%.ex.o)
