@@ -3,47 +3,35 @@
 
 #include "exa.h"
 
-#define exaArrayFieldMinMax(T,array,S,field,min,max) \
-  do { \
-    min[0]=exaTypeGetMax(S); max[0]=exaTypeGetMin(S); \
-    T *ptr=exaArrayPointer(T,array); \
-    exaInt n=exaArraySize(array); \
-    T *p,*e; \
-    for(p=ptr,e=ptr+n; p!=e; p++) { \
-      if(p->field<min[0]) { \
-        min[0]=p->field; \
-      } \
-      if(p->field>max[0]) { \
-        max[0]=p->field; \
-      } \
-    } \
-  } while(0);
-
-#define exaArraySetProc(T,array,S,field,proc,comm) \
+#define exaArraySetProc(T,array,S,field,proc,comm) /* assumes array is locally sorted */ \
   do { \
     exaInt np=exaCommSize(comm); \
-    S min[1],max[1]; \
-    exaArrayFieldMinMax(T,array,S,field,min,max); \
-    exaCommGop(comm,min,1,exaTypeGetCommType(S),EXA_MIN); \
-    exaCommGop(comm,max,1,exaTypeGetCommType(S),EXA_MAX); \
-    S range=max[0]-min[1]; \
-    exaInt n=exaArraySize(array); \
     T *ptr=exaArrayPointer(T,array); \
-    T *p,*e; \
-    exaInt prev_id=0; \
-    for(p=ptr,e=ptr+n; p!=e; p++) { \
-      exaInt id; \
-      for(id=prev_id; id<np; id++) { \
-        S start=min[0]+(range*id)/np; \
-        S end  =min[0]+(range*(id+1))/np; \
+    exaInt n=exaArraySize(array); \
+    \
+    S extrema[2]; \
+    extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
+    exaCommGop(comm,extrema,2,exaTypeGetCommType(S),EXA_MAX); \
+    extrema[0]*=-1; \
+    S range=extrema[1]-extrema[0]; \
+    \
+    T *p=ptr,*e; \
+    exaInt id; \
+    for(id=0; id<np; id++) { \
+      S start=extrema[0]+(range*id)/np; \
+      S end  =extrema[0]+(range*(id+1))/np; \
+      for(e=ptr+n; p!=e && id<np; p++) { \
         if(start<=p->field && p->field<end) { \
           p->proc=id; \
-          prev_id=id; \
-          break; \
+        } else { \
+          id++; \
+          start=extrema[0]+(range*id)/np; \
+          end  =extrema[0]+(range*(id+1))/np; \
         } \
       } \
-      if(id==np) p->proc=np-1; \
     } \
+    for(e=ptr+n; p!=e; p++) \
+      p->proc=np-1; \
   } while(0);
 
 #endif
