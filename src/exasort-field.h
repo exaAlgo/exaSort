@@ -3,11 +3,11 @@
 
 #include "exa.h"
 
-#define exaArrayFeildMinMax(T,array,S,field,min,max) \
+#define exaArrayFieldMinMax(T,array,S,field,min,max) \
   do { \
     min[0]=exaTypeGetMax(S); max[0]=exaTypeGetMin(S); \
-    T *ptr=exaArrayGetPtr(T,array); \
-    exaInt n=exaArrayGetSize(array); \
+    T *ptr=exaArrayPointer(T,array); \
+    exaInt n=exaArraySize(array); \
     T *p,*e; \
     for(p=ptr,e=ptr+n; p!=e; p++) { \
       if(p->field<min[0]) { \
@@ -24,18 +24,18 @@
     exaInt np=exaCommSize(comm); \
     S min[1],max[1]; \
     exaArrayFieldMinMax(T,array,S,field,min,max); \
-    exaGop(comm,min,1,exaTypeGetCommType(S),EXA_MIN); \
-    exaGop(comm,max,1,exaTypeGetCommType(S),EXA_MAX); \
+    exaCommGop(comm,min,1,exaTypeGetCommType(S),EXA_MIN); \
+    exaCommGop(comm,max,1,exaTypeGetCommType(S),EXA_MAX); \
     S range=max[0]-min[1]; \
-    exaInt n=exaArrayGetSize(array); \
-    T *ptr=exaArrayGetPtr(T,array); \
+    exaInt n=exaArraySize(array); \
+    T *ptr=exaArrayPointer(T,array); \
     T *p,*e; \
     exaInt prev_id=0; \
     for(p=ptr,e=ptr+n; p!=e; p++) { \
       exaInt id; \
       for(id=prev_id; id<np; id++) { \
-        S start=min+(range*id)/np; \
-        S end  =min+(range*(id+1))/np; \
+        S start=min[0]+(range*id)/np; \
+        S end  =min[0]+(range*(id+1))/np; \
         if(start<=p->field && p->field<end) { \
           p->proc=id; \
           prev_id=id; \
