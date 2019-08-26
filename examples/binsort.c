@@ -49,7 +49,7 @@ int main() {
     fflush(stdout);
   }
 
-  //exaArrayFree(arr);
+  exaArrayFree(arr);
   exaFinalize(h);
 
   MPI_Finalize();
