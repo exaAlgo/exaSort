@@ -1,11 +1,6 @@
 #include "exa-impl.h"
 #include "exasort-field.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <time.h>
-#include <limits.h>
-
 #define exaSortBinSort(T,array_,S,field,proc,comm,buf) \
   do { \
     exaInt size=exaArraySize(array_); \
