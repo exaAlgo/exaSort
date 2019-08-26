@@ -16,22 +16,18 @@
     S range=extrema[1]-extrema[0]; \
     \
     T *p=ptr,*e; \
-    exaInt id; \
-    for(id=0; id<np; id++) { \
+    exaInt id = 0; \
+    do { \
       S start=extrema[0]+(range*id)/np; \
       S end  =extrema[0]+(range*(id+1))/np; \
-      for(e=ptr+n; p!=e && id<np; p++) { \
-        if(start<=p->field && p->field<end) { \
-          p->proc=id; \
-        } else { \
-          id++; \
-          start=extrema[0]+(range*id)/np; \
-          end  =extrema[0]+(range*(id+1))/np; \
-        } \
-      } \
-    } \
+      if(p->field>=end) {id++; continue;} \
+      if(p->field<start) break; \
+      for(e=ptr+n; p!=e && p->field<end; p++) \
+        p->proc=id; \
+      id++; \
+    } while(id<np); \
     for(e=ptr+n; p!=e; p++) \
-      p->proc=np-1; \
+      p->proc=id-1; \
   } while(0);
 
 #endif
