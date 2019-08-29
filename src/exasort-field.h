@@ -11,7 +11,7 @@
     \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
-    exaCommGop(comm,extrema,2,exaTypeGetCommType(S),EXA_MAX); \
+    exaCommGop(comm,extrema,2,exaTypeGetDataType(S),EXA_MAX); \
     extrema[0]*=-1; \
     S range=extrema[1]-extrema[0]; \
     \
