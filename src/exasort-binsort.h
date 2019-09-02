@@ -14,4 +14,5 @@
   } while(0);
 
 #define exaBinSort(h,T,array_,S,field,proc) \
-  exaSortBinSort(T,array_,S,field,proc,(exaGetComm(h)),(&(h->buf)));
+  exaSortBinSort(T,array_,S,field,proc,(exaGetComm(h)),(&(h->buf))); \
+  exaSortLoadBalance(T,array_,S,field,proc,(exaGetComm(h)),(&(h->buf)));

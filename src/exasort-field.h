@@ -30,4 +30,43 @@
       p->proc=id-1; \
   } while(0);
 
+#define min(a,b) ((a)<(b) ? (a) : (b))
+
+#define exaSortLoadBalance(T,array_,S,field,proc,comm,buff) \
+  do { \
+    exaInt np=exaCommSize(comm); \
+    T *ptr=exaArrayPointer(T,array_); \
+    exaInt lelt=exaArraySize(array_); \
+    \
+    exaLong out[2][1],buf[2][1],in[1]; \
+    in[0]=lelt; \
+    exaCommScan(comm,out,in,buf,1,exaTypeGetDataType(exaLong),EXA_ADD); \
+    exaLong start=out[0][0]; \
+    exaLong nel  =out[1][0]; \
+    exaInt pNel   = nel/np; \
+    exaInt nrem   = nel-pNel*np; \
+    \
+    exaInt idCount= 0; \
+    exaLong upLimit=0; \
+    while(upLimit<start) {\
+      idCount++; \
+      upLimit=pNel*idCount+min(idCount,nrem); \
+    } \
+    \
+    exaLong downLimit = start; \
+    exaInt i=0; \
+    do { \
+      exaInt end=min(upLimit-start,lelt); \
+      for(; i<end; i++) \
+        ptr[i].proc = idCount - 1; \
+      downLimit = upLimit; \
+      idCount++; \
+      upLimit = idCount*pNel+min(idCount,nrem); \
+    } while(i<lelt); \
+    exaArrayTransfer(T,array_,proc,&comm->cr); \
+    ptr=exaArrayPointer(T,array_); \
+    lelt=exaArraySize(array_); \
+    sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),(buff)); \
+  } while(0);
+
 #endif
