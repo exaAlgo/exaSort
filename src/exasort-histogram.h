@@ -13,7 +13,7 @@
     exaMalloc(nprobes,&probecounts); \
     \
     /* TODO: Put in a macro */ \
-    T *ptr=exaArrayPointer(T,array_); \
+    T *ptr=exaArrayPointer(array_); \
     exaInt n=exaArraySize(array_); \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
@@ -33,7 +33,7 @@
 #define histoSortUpdateProbeCounts(T,array_,field,probes,probecounts,comm) \
   do { \
     exaInt lelt=exaArraySize(array_); \
-    T *ptr=exaArrayPointer(T,array_); \
+    T *ptr=exaArrayPointer(array_); \
     exaInt size=exaCommSize(comm); \
     exaInt nprobes=3*(size-1); \
     \
@@ -78,10 +78,11 @@ inline int histoSortReachedThreshold(exaComm c,exaLong *probecounts,exaLong N,
     }
   }
 
-  exaBcast(c,&converged,1,exaTypeGetDataType(exaInt),0);
+  exaCommBcast(c,&converged,1,exaTypeGetDataType(exaInt),0);
   return converged;
 }
 
+#if 0
 void histoSortUpdateProbeI(exaScalar *probes,exaLong *probecounts,int i,
 		           exaLong expected,GenmapInt threshold)
 {
@@ -178,4 +179,5 @@ void histoSortUpdateProbeI(exaScalar *probes,exaLong *probecounts,int i,
 #define exaHistogramSort(h,T,array_,S,field,proc) \
   exaSortHistogramSort(T,array_,S,field,proc,(exaGetComm(h)),(&(h->buf)));
 
+#endif
 #endif

@@ -16,8 +16,8 @@ int main() {
   exaInit(&h,MPI_COMM_WORLD);
 
   exaArray arr;
-  exaArrayCreate(kvPair,arr,exaRank(h)+5);
-  kvPair *data=exaArrayPointer(kvPair,arr);
+  exaArrayInit(&arr,sizeof(kvPair),exaRank(h)+5);
+  kvPair *data=exaArrayPointer(arr);
 
   int i,j;
   for(i=0; i<exaArraySize(arr); i++){
@@ -27,7 +27,7 @@ int main() {
 
   exaBinSort(h,kvPair,arr,exaScalar,value,proc);
 
-  data=exaArrayPointer(kvPair,arr);
+  data=exaArrayPointer(arr);
   if(exaRank(h)==0) printf("After sorting\n");
   for(j=0; j<exaSize(h); j++) {
     exaBarrier(h);
