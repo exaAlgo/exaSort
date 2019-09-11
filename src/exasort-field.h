@@ -11,7 +11,7 @@
     \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
-    exaCommGop(comm,extrema,2,exaTypeGetDataType(S),EXA_MAX); \
+    exaCommGop(comm,extrema,2,exaTypeGetDataType(S),exaMaxOp); \
     extrema[0]*=-1; \
     S range=extrema[1]-extrema[0]; \
     \
@@ -40,7 +40,7 @@
     \
     exaLong out[2][1],buf[2][1],in[1]; \
     in[0]=lelt; \
-    exaCommScan(comm,out,in,buf,1,exaTypeGetDataType(exaLong),EXA_ADD); \
+    exaCommScan(comm,out,in,buf,1,exaTypeGetDataType(exaLong),exaAddOp); \
     exaLong start=out[0][0]; \
     exaLong nel  =out[1][0]; \
     exaInt pNel   = nel/np; \
