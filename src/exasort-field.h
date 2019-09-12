@@ -8,6 +8,8 @@
     exaInt np=exaCommSize(comm); \
     T *ptr=exaArrayPointer(array); \
     exaInt n=exaArraySize(array); \
+    size_t unitSize=exaArrayUnitSize(array); \
+    n=(n*unitSize)/sizeof(T); \
     \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
@@ -28,7 +30,7 @@
     } while(id<np); \
     for(e=ptr+n; p!=e; p++) \
       p->proc=id-1; \
-  } while(0);
+  } while(0)
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
 
@@ -37,6 +39,8 @@
     exaInt np=exaCommSize(comm); \
     T *ptr=exaArrayPointer(array_); \
     exaInt lelt=exaArraySize(array_); \
+    size_t unitSize=exaArrayUnitSize(array_); \
+    lelt=(lelt*unitSize)/sizeof(T); \
     \
     exaLong out[2][1],buf[2][1],in[1]; \
     in[0]=lelt; \
@@ -66,7 +70,8 @@
     exaArrayTransfer(T,array_,proc,&comm->cr); \
     ptr=exaArrayPointer(array_); \
     lelt=exaArraySize(array_); \
+    lelt=(lelt*unitSize)/sizeof(T); \
     sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),(buff)); \
-  } while(0);
+  } while(0)
 
 #endif

@@ -15,6 +15,8 @@
     /* TODO: Put in a macro */ \
     T *ptr=exaArrayPointer(array_); \
     exaInt n=exaArraySize(array_); \
+    size_t unitSize=exaArrayUnitSize(array_); \
+    n=(n*unitSize)/sizeof(T); \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
     exaCommGop(comm,extrema,2,exaTypeGetDataType(S),EXA_MAX); \
@@ -28,11 +30,13 @@
       h->histogram->probes[3*i-2]=extrema[0]+i*delta; \
       h->histogram->probes[3*i-1]=extrema[1]; \
     } \
-  } while(0);
+  } while(0)
 
 #define histoSortUpdateProbeCounts(T,array_,field,probes,probecounts,comm) \
   do { \
     exaInt lelt=exaArraySize(array_); \
+    size_t unitSize=exaArrayUnitSize(array_); \
+    lelt=(lelt*unitSize)/sizeof(T); \
     T *ptr=exaArrayPointer(array_); \
     exaInt size=exaCommSize(comm); \
     exaInt nprobes=3*(size-1); \
