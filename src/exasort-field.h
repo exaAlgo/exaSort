@@ -37,8 +37,6 @@
   exaInt np=exaCommSize(comm); \
   T *ptr=exaArrayPointer(array_); \
   exaInt lelt=exaArraySize(array_); \
-  size_t unitSize=exaArrayUnitSize(array_); \
-  lelt=(lelt*unitSize)/sizeof(T); \
   \
   exaLong out[2][1],buf[2][1],in[1]; \
   in[0]=lelt; \
@@ -68,7 +66,6 @@
   exaArrayTransfer(T,array_,proc,&comm->cr); \
   ptr=exaArrayPointer(array_); \
   lelt=exaArraySize(array_); \
-  lelt=(lelt*unitSize)/sizeof(T); \
   sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),(buff)); \
 } while(0)
 

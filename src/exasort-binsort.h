@@ -7,14 +7,11 @@
 #define exaSortBinSort(T,array_,S,field,proc,comm,buf) \
   do { \
     exaInt size=exaArraySize(array_); \
-    size_t unitSize=exaArrayUnitSize(array_); \
-    size=(size*unitSize)/sizeof(T); \
     T *ptr=exaArrayPointer(array_); \
     sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),(buf)); /* local sort */ \
     exaArraySetProc(T,array_,S,field,proc,comm); /* Set destination bin */ \
     exaArrayTransfer(T,array_,proc,&(comm->cr)); /* Transfer to destination processor */ \
     size=exaArraySize(array_); \
-    size=size*(unitSize/sizeof(T)); \
     ptr=exaArrayPointer(array_); \
     sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),(buf)); /* locally sort again */ \
   } while(0)
