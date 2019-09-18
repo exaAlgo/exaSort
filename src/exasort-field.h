@@ -29,14 +29,14 @@
 } while(0)
 
 #define exaArraySetProc(T,array,S,field,proc,comm) /* assumes array is locally sorted */ \
-	exaPointerSetProc(T,exaArraySize(array),exaArrayPointer(array),S,field,proc,comm)
+	exaPointerSetProc(T,exaArrayGetSize(array),exaArrayGetPointer(array),S,field,proc,comm)
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
 
 #define exaArrayLoadBalance(T,array_,S,field,proc,comm,buff) do{ \
   exaInt np=exaCommSize(comm); \
-  T *ptr=exaArrayPointer(array_); \
-  exaInt lelt=exaArraySize(array_); \
+  T *ptr=exaArrayGetPointer(array_); \
+  exaInt lelt=exaArrayGetSize(array_); \
   \
   exaLong out[2][1],buf[2][1],in[1]; \
   in[0]=lelt; \
@@ -64,8 +64,8 @@
     upLimit = idCount*pNel+min(idCount,nrem); \
   } while(i<lelt); \
   exaArrayTransfer(T,array_,proc,&comm->cr); \
-  ptr=exaArrayPointer(array_); \
-  lelt=exaArraySize(array_); \
+  ptr=exaArrayGetPointer(array_); \
+  lelt=exaArrayGetSize(array_); \
   sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),(buff)); \
 } while(0)
 

@@ -13,8 +13,8 @@
     exaMalloc(nprobes,&probecounts); \
     \
     /* TODO: Put in a macro */ \
-    T *ptr=exaArrayPointer(array_); \
-    exaInt n=exaArraySize(array_); \
+    T *ptr=exaArrayGetPointer(array_); \
+    exaInt n=exaArrayGetSize(array_); \
     S extrema[2]; \
     extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
     exaCommGop(comm,extrema,2,exaTypeGetDataType(S),EXA_MAX); \
@@ -32,8 +32,8 @@
 
 #define histoSortUpdateProbeCounts(T,array_,field,probes,probecounts,comm) \
   do { \
-    exaInt lelt=exaArraySize(array_); \
-    T *ptr=exaArrayPointer(array_); \
+    exaInt lelt=exaArrayGetSize(array_); \
+    T *ptr=exaArrayGetPointer(array_); \
     exaInt size=exaCommSize(comm); \
     exaInt nprobes=3*(size-1); \
     \
@@ -120,8 +120,8 @@ void histoSortUpdateProbeI(exaScalar *probes,exaLong *probecounts,int i,
 
 #define exaSortHistogramSort(T,array_,S,field,proc,comm,buf) \
   do { \
-    exaInt lelt=exaArraySize(array_); \
-    T *ptr=exaArrayPointer(T,array_); \
+    exaInt lelt=exaArrayGetSize(array_); \
+    T *ptr=exaArrayGetPointer(T,array_); \
     \
     exaInt size=exaCommSize(comm); \
     exaInt rank=exaCommRank(comm); \

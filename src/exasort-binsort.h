@@ -5,13 +5,13 @@
 #include "exasort-field.h"
 
 #define exaSortBinSort(T,array_,S,field,proc,comm,buf) do{ \
-  exaInt size=exaArraySize(array_); \
-  T *ptr=exaArrayPointer(array_); \
+  exaInt size=exaArrayGetSize(array_); \
+  T *ptr=exaArrayGetPointer(array_); \
   sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),(buf)); /* local sort */ \
   exaArraySetProc(T,array_,S,field,proc,comm); /* Set destination bin */ \
   exaArrayTransfer(T,array_,proc,&(comm->cr)); /* Transfer to destination processor */ \
-  size=exaArraySize(array_); \
-  ptr=exaArrayPointer(array_); \
+  size=exaArrayGetSize(array_); \
+  ptr=exaArrayGetPointer(array_); \
   sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),(buf)); /* locally sort again */ \
 }while(0)
 
@@ -20,15 +20,15 @@
   exaArrayLoadBalance(T,array_,S,field,proc,(exaGetComm(h)),(&(h->buf)));
 
 #define exaSortLocalSort2(h,T,array_,S1,field1,S2,field2) do{ \
-  exaInt size=exaArraySize(array_); \
-  T *ptr=exaArrayPointer(array_); \
+  exaInt size=exaArrayGetSize(array_); \
+  T *ptr=exaArrayGetPointer(array_); \
   sarray_sort2(T,ptr,(exaUInt)size,field1,exaTypeGetGSSortType(S1), \
                                    field2,exaTypeGetGSSortType(S2),&(h->buf)); \
 }while(0)
 
 #define exaSortLocalSort3(h,T,array_,S1,field1,S2,field2,S3,field3) do{ \
-  exaInt size=exaArraySize(array_); \
-  T *ptr=exaArrayPointer(array_); \
+  exaInt size=exaArrayGetSize(array_); \
+  T *ptr=exaArrayGetPointer(array_); \
   sarray_sort_3(T,ptr,(exaUInt)size,field1,exaTypeGetGSSortType(S1), \
                                     field2,exaTypeGetGSSortType(S2), \
                                     field3,exaTypeGetGSSortType(S3),&(h->buf)); \
