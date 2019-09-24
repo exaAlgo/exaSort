@@ -16,11 +16,13 @@ int main() {
   exaInit(&h,MPI_COMM_WORLD);
 
   exaArray arr;
-  exaArrayInit(&arr,sizeof(kvPair),exaRank(h)+5);
-  kvPair *data=exaArrayGetPointer(arr);
+  size_t size=exaRank(h)+5;
+  exaArrayInit(&arr,sizeof(kvPair),size);
+  exaArraySetSize(arr,size);
 
+  kvPair *data=exaArrayGetPointer(arr);
   int i,j;
-  for(i=0; i<exaArrayGetSize(arr); i++){
+  for(i=0; i<size; i++){
     data[i].key=i;
     data[i].value=-(exaRank(h)+ i*(1./exaArrayGetSize(arr)));
   }
