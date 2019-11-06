@@ -66,7 +66,7 @@
   exaArrayTransfer(T,array_,proc,&comm->cr); \
   ptr=exaArrayGetPointer(array_); \
   lelt=exaArrayGetSize(array_); \
-  sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),(buff)); \
+  sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),&(buff->buf)); \
 } while(0)
 
 #endif
