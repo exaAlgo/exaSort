@@ -3,6 +3,9 @@
 
 #include "exa.h"
 
+int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
+int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
+
 #define exaPointerSetProc(T,size,ptr_,S,field,proc,comm) /* assumes array is locally sorted */ do { \
   exaInt np=exaCommSize(comm); \
   T *ptr=ptr_; \
@@ -63,7 +66,7 @@
     idCount++; \
     upLimit = idCount*pNel+min(idCount,nrem); \
   } while(i<lelt); \
-  exaArrayTransfer(T,array_,proc,&comm->cr); \
+  exaArrayTransfer(array_,offsetof(T,proc),1,comm); \
   ptr=exaArrayGetPointer(array_); \
   lelt=exaArrayGetSize(array_); \
   sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),&(buff->buf)); \

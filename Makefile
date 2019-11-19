@@ -1,17 +1,16 @@
+## User configurations ###
 # Compilers and flags
 CC ?= mpicc
-CFLAGS ?= -O2
+CFLAGS ?= -O0
 CPP ?= cpp
 CPPFLAGS ?=
 LDFLAGS ?=
 
 # Dependency locations
-GSDIR ?=
 EXADIR ?=
 
 # Build options
 DEBUG ?= 1
-SHARED ?= 0
 
 # Install prefix
 PREFIX ?= $(HOME)/local/exaSort
@@ -31,7 +30,7 @@ DEPS     = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
 
 INCFLAGS  = -I$(SRCDIR) -I$(GSDIR)/include -I$(EXADIR)/include
 compile.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS)
-LDFLAGS  += -L$(EXADIR)/lib -lexa -L$(GSDIR)/lib -lgs
+LDFLAGS  += -L$(EXADIR)/lib -lexa
 
 ifneq ($(DEBUG),0)
   CFLAGS += -g

@@ -9,7 +9,7 @@
   T *ptr=exaArrayGetPointer(array_); \
   sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),&buf1->buf); /* local sort */ \
   exaArraySetProc(T,array_,S,field,proc,comm); /* Set destination bin */ \
-  exaArrayTransfer(T,array_,proc,&(comm->cr)); /* Transfer to destination processor */ \
+  exaArrayTransfer(array_,offsetof(T,proc),1,comm); /* Transfer to destination processor */ \
   size=exaArrayGetSize(array_); \
   ptr=exaArrayGetPointer(array_); \
   sarray_sort(T,ptr,(exaUInt)size,field,exaTypeGetGSSortType(S),&buf1->buf); /* locally sort again */ \
