@@ -31,7 +31,9 @@ int main() {
     exaArrayAppend(arr,&data);
   }
 
-  exaBinSort(h,kvPair,arr,exaInt,key[1],proc);
+  exaComm comm=exaGetComm(h);
+  exaBuffer buf; exaBufferCreate(&buf,1024);
+  exaBinSort(arr,exaInt_t,offsetof(kvPair,key[1]),1,buf,comm);
 
   kvPair *arrayData=exaArrayGetPointer(arr);
   if(exaRank(h)==0) printf("After sorting\n");
@@ -48,6 +50,7 @@ int main() {
 
   exaSettingsFree(s);
   exaArrayFree(arr);
+  exaBufferFree(buf);
   exaFinalize(h);
 
   MPI_Finalize();

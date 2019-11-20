@@ -6,33 +6,34 @@ int exaSortPermuteBuf(exaArray arr,exaBuffer buf){
   size_t align   =exaArrayGetAlign(arr);
   void *ptr      =exaArrayGetPointer(arr);
 
-  sarray_permute_buf_(align,unitSize,ptr,nUnifs,buf->buf)
+  sarray_permute_buf_(align,unitSize,ptr,nUnits,&buf->buf);
 
   return 0;
 }
 
 int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,
-  int keep){
+  int keep)
+{
   exaUInt nUnits =exaArrayGetSize(arr);
   size_t unitSize=exaArrayGetUnitSize(arr);
   void *ptr      =exaArrayGetPointer(arr);
 
+  size_t doubleSize=sizeof(double);
   switch(t){
     case exaScalar_t:
-      size_t doubleSize=sizeof(double);
       if(doubleSize==sizeof(exaScalar))
-        sortp_double(buf->buf,keep,(exaScalar*)((char*)ptr+fieldOffset),
+        sortp_double(&buf->buf,keep,(exaScalar*)((char*)ptr+fieldOffset),
           nUnits,unitSize);
        else
-        sortp_float (buf->buf,keep,(exaScalar*)((char*)ptr+fieldOffset),
+        sortp_float (&buf->buf,keep,(exaScalar*)((char*)ptr+fieldOffset),
           nUnits,unitSize);
       break;
     case exaULong_t:
-      sortp_long  (buf->buf,keep,(exaULong* )((char*)ptr+fieldOffset),
+      sortp_long  (&buf->buf,keep,(exaULong* )((char*)ptr+fieldOffset),
         nUnits,unitSize);
       break;
     case exaUInt_t:
-      sortp       (buf->buf,keep,(exaUInt*  )((char*)ptr+fieldOffset),
+      sortp       (&buf->buf,keep,(exaUInt*  )((char*)ptr+fieldOffset),
         nUnits,unitSize);
       break;
     default:

@@ -15,49 +15,61 @@ DEBUG ?= 1
 # Install prefix
 PREFIX ?= $(HOME)/local/exaSort
 
-# Meta info about the package
+### Meta info about the package ###
 SRCDIR ?= src
-EXAMPLEDIR ?= examples
+EXAMPLESDIR ?= examples
 BUILDDIR ?= build
 DEPDIR ?= .deps
 
-SRCS     = $(wildcard $(SRCDIR)/*.c)
-EXAMPLES = $(wildcard $(EXAMPLEDIR)/*.c)
+SRCS = $(wildcard $(SRCDIR)/*.c)
+OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
+DEPS = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
+EXAMPLESRCS = $(wildcard $(EXAMPLESDIR)/*.c)
+EXAMPLEOBJS = $(patsubst $(EXAMPLESDIR)/%.c,$(BUILDDIR)/examples/%.o,$(EXAMPLESRCS))
 
-OBJS     = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.src.o,$(SRCS))
-OBJS    += $(patsubst $(EXAMPLEDIR)/%.c,$(BUILDDIR)/%.ex.o,$(EXAMPLES))
-DEPS     = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
-
-INCFLAGS  = -I$(SRCDIR) -I$(GSDIR)/include -I$(EXADIR)/include
-compile.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS)
-LDFLAGS  += -L$(EXADIR)/lib -lexa
-
+### Set various flags ###
 ifneq ($(DEBUG),0)
   CFLAGS += -g
 endif
 
-.PHONY: example
-example: $(EXAMPLES:$(EXAMPLEDIR)/%.c=$(BUILDDIR)/%.ex.o)
+CFLAGS   += -fPIC
+incflags  = -I$(SRCDIR) -I$(EXADIR)/include
+compile.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(incflags)
+LDFLAGS  += -L$(EXADIR)/lib -lexa
+link.o    = $(CC) $(LDFLAGS) -shared -o
+EXT       = so
+LIBNAME   = libexaSort.$(EXT)
+
+### Make targets ###
+.PHONY: all
+all: lib install examples
+
+.PHONY: lib
+lib: $(OBJS)
+	$(link.o) $(BUILDDIR)/$(LIBNAME) $(OBJS) $(LDFLAGS)
 
 .PHONY: install
 install:
+	@mkdir -p $(DESTDIR)$(PREFIX)/lib
 	@mkdir -p $(DESTDIR)$(PREFIX)/include
-	@cp $(SRCDIR)/*.h $(DESTDIR)$(PREFIX)/include/
+	@cp -u $(SRCDIR)/*.h $(DESTDIR)$(PREFIX)/include/
+	@cp -u $(BUILDDIR)/$(LIBNAME) $(DESTDIR)$(PREFIX)/lib/
 
 $(DEPDIR)/%.src.d: $(SRCDIR)/%.c
-	@$(CPP) $(CFLAGS) $(INCFLAGS) $< -MM -MT $(@:$(DEPDIR)/%.src.d=$(BUILDDIR)/%.src.deps) >$@
-$(DEPDIR)/%.ex.d: $(EXAMPLEDIR)/%.c
-	@$(CPP) $(CFLAGS) $(INCFLAGS) $< -MM -MT $(@:$(DEPDIR)/%.ex.d=$(BUILDDIR)/%.ex.deps) >$@
+	@$(CPP) $(CFLAGS) $(incflags) $< -MM -MT $(@:$(DEPDIR)/%.src.d=$(BUILDDIR)/%.src.deps) >$@
+$(DEPDIR)/%.ex.d: $(EXAMPLESDIR)/%.c
+	@$(CPP) $(CFLAGS) $(incflags) $< -MM -MT $(@:$(DEPDIR)/%.ex.d=$(BUILDDIR)/%.ex.deps) >$@
 
 -include $(DEPS)
 
-$(BUILDDIR)/%.ex.o: $(EXAMPLEDIR)/%.c $(BUILDDIR)/%.ex.deps
-	$(compile.c) $< -o $@ $(LDFLAGS)
-$(BUILDDIR)/%.src.o: $(SRCDIR)/%.c $(BUILDDIR)/%.src.deps
-	$(compile.c) $< -o $@ $(LDFLAGS)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+	$(compile.c) -c $< -o $@ $(LDFLAGS)
 
-.PHONY: all
-all: example install
+.PHONY: examples
+examples: $(EXAMPLEOBJS)
+
+$(BUILDDIR)/examples/%.o: $(EXAMPLESDIR)/%.c
+	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
 
 .PHONY: clean
 clean:
@@ -68,4 +80,5 @@ print :
 	@echo $(VAR)=$($(VAR))
 
 $(shell mkdir -p $(BUILDDIR))
+$(shell mkdir -p $(BUILDDIR)/examples)
 $(shell mkdir -p $(DEPDIR))

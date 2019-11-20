@@ -1,38 +1,11 @@
-#ifndef _EXA_SORT_FIELD_H_
-#define _EXA_SORT_FIELD_H_
+#ifndef _EXASORT_FIELD_H_
+#define _EXASORT_FIELD_H_
 
-#include "exa.h"
+#include <exa.h>
+#include <exa-impl.h>
 
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
 int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
-
-#define exaPointerSetProc(T,size,ptr_,S,field,proc,comm) /* assumes array is locally sorted */ do { \
-  exaInt np=exaCommSize(comm); \
-  T *ptr=ptr_; \
-  \
-  S extrema[2]; \
-  extrema[0]=-(ptr[0].field),extrema[1]=ptr[size-1].field; \
-  exaCommGop(comm,extrema,2,exaTypeGetDataType(S),exaMaxOp); \
-  extrema[0]*=-1; \
-  S range=extrema[1]-extrema[0]; \
-  \
-  T *p=ptr,*e; \
-  exaInt id = 0; \
-  do { \
-    S start=extrema[0]+(range*id)/np; \
-    S end  =extrema[0]+(range*(id+1))/np; \
-    if(p->field>=end) {id++; continue;} \
-    if(p->field<start) break; \
-    for(e=ptr+size; p!=e && p->field<end; p++) \
-      p->proc=id; \
-    id++; \
-  } while(id<np); \
-  for(e=ptr+size; p!=e; p++) \
-    p->proc=id-1; \
-} while(0)
-
-#define exaArraySetProc(T,array,S,field,proc,comm) /* assumes array is locally sorted */ \
-	exaPointerSetProc(T,exaArrayGetSize(array),exaArrayGetPointer(array),S,field,proc,comm)
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
 
