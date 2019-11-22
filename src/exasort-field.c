@@ -1,4 +1,4 @@
-#include <exasort-field.h>
+#include <exasort-impl.h>
 
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf){
   exaUInt nUnits =exaArrayGetSize(arr);
@@ -24,7 +24,6 @@ int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,
       if(doubleSize==sizeof(exaScalar))
         gslib_sortp_double(&buf->buf,keep,(double*)((char*)(ptr)+fieldOffset),
           nUnits,unitSize);
-      printf("I am here\n");
       break;
     case exaULong_t:
       gslib_sortp_ull(&buf->buf,keep,(exaULong*)((char*)ptr+fieldOffset),

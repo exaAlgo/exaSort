@@ -1,8 +1,7 @@
-#ifndef _EXASORT_HISTOGRAM_
-#define _EXASORT_HISTOGRAM_
+#ifndef _EXASORT_HYPERCUBE_H_
+#define _EXASORT_HYPERCUBE_H_
 
-#include "exa-impl.h"
-#include "exasort-field.h"
+#include "exasort-impl.h"
 
 #define histoSortInitProbes(T,array_,S,field,probes,probecounts,comm) \
   do { \

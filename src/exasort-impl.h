@@ -1,14 +1,18 @@
-#ifndef _EXASORT_FIELD_H_
-#define _EXASORT_FIELD_H_
+#ifndef _EXASORT_IMPL_H_
+#define _EXASORT_IMPL_H_
 
-#include <exa.h>
 #include <exa-impl.h>
+#include <exa-memory.h>
 
+#include <exasort.h>
+
+exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
+
+/* Local sort */
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
 int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
-
 #define exaArrayLoadBalance(T,array_,S,field,proc,comm,buff) do{ \
   exaInt np=exaCommSize(comm); \
   T *ptr=exaArrayGetPointer(array_); \
@@ -45,4 +49,4 @@ int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,in
   sarray_sort(T,ptr,(exaUInt)lelt,field,exaTypeGetGSSortType(S),&(buff->buf)); \
 } while(0)
 
-#endif
+#endif // exasort-impl

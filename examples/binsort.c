@@ -9,8 +9,8 @@ typedef struct {
   exaScalar value;
 } kvPair;
 
-int main() {
-  MPI_Init(0,0);
+int main(int argc,char *argv[]) {
+  MPI_Init(&argc,&argv);
 
   exaSettings s; exaSettingsInit(&s);
   exaSettingsSetSetting("backend","/opencl/gpu",s);
@@ -26,13 +26,15 @@ int main() {
   kvPair data;
   int i,j;
   for(i=0; i<size; i++){
+    data.proc=0;
+    data.key[0]=0;
     data.key[1]=i;
     data.value=-(exaRank(h)+ i*(1./exaArrayGetMaxSize(arr)));
     exaArrayAppend(arr,&data);
   }
 
   exaComm comm=exaGetComm(h);
-  exaBinSort(arr,exaScalar_t,offsetof(kvPair,value),1,comm);
+  exaBinSort(arr,exaScalar_t,offsetof(kvPair,key[1]),1,comm);
 
   kvPair *arrayData=exaArrayGetPointer(arr);
   if(exaRank(h)==0) printf("After sorting\n");
