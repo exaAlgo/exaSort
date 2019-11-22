@@ -4,13 +4,10 @@
 #include <exa.h>
 #include <exa-impl.h>
 
-int exaSortArray (exaArray arr,exaDataType t ,exaUInt offset ,
-  exaBuffer buf);
-int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,exaDataType t2,exaUInt offset2,
-  exaBuffer buf);
+int exaSortArray (exaArray arr,exaDataType t ,exaUInt offset);
+int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,exaDataType t2,exaUInt offset2);
 
-int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,
-  exaBuffer buf,exaComm comm);
+int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,exaComm comm);
 
 //#define exaSortLocalSort(h,T,array_,S1,field1) do{ \
 //  exaInt size=exaArrayGetSize(array_); \

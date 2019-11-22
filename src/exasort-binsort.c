@@ -71,10 +71,9 @@ int exaArraySetBin(exaUInt **proc_,exaArray arr,exaDataType t,exaUInt offset,exa
     proc[index]=id-1;
 }
 
-int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,
-  exaBuffer buf,exaComm comm)
+int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,exaComm comm)
 {
-  exaSortArray(array,t,offset,buf); /* local sort */
+  exaSortArray(array,t,offset); /* local sort */
 
   exaUInt *proc;
   exaArraySetBin(&proc,array,t,offset,comm); /* Set destination bin */
@@ -82,7 +81,7 @@ int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,
   exaArrayTransferExt(array,proc,comm); /* Transfer to destination processor */
   exaFree(proc);
 
-  exaSortArray(array,t,offset,buf); /* locally sort again */
+  exaSortArray(array,t,offset); /* locally sort again */
   //if(loadBalance)
   //  exaArrayLoadBalance(array,t,offset,comm,buf);
 }

@@ -25,7 +25,7 @@ SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
 DEPS = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
 EXAMPLESRCS = $(wildcard $(EXAMPLESDIR)/*.c)
-EXAMPLEOBJS = $(patsubst $(EXAMPLESDIR)/%.c,$(BUILDDIR)/examples/%.o,$(EXAMPLESRCS))
+EXAMPLEOBJS = $(patsubst $(EXAMPLESDIR)/%.c,$(BUILDDIR)/examples/%,$(EXAMPLESRCS))
 
 ### Set various flags ###
 ifneq ($(DEBUG),0)
@@ -49,7 +49,7 @@ lib: $(OBJS)
 	$(link.o) $(BUILDDIR)/$(LIBNAME) $(OBJS) $(LDFLAGS)
 
 .PHONY: install
-install:
+install: lib
 	@mkdir -p $(DESTDIR)$(PREFIX)/lib
 	@mkdir -p $(DESTDIR)$(PREFIX)/include
 	@cp -u $(SRCDIR)/*.h $(DESTDIR)$(PREFIX)/include/
@@ -68,7 +68,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 .PHONY: examples
 examples: $(EXAMPLEOBJS)
 
-$(BUILDDIR)/examples/%.o: $(EXAMPLESDIR)/%.c
+$(BUILDDIR)/examples/%: $(EXAMPLESDIR)/%.c
 	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
 
 .PHONY: clean
