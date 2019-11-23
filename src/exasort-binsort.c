@@ -2,8 +2,12 @@
 #include <exasort-binsort.h>
 
 /* assumes array is locally sorted */
-int exaArraySetBin(exaUInt **proc_,exaArray arr,exaDataType t,exaUInt offset,exaComm comm)
+int exaArraySetBin(exaUInt **proc_,exaSortData data,exaComm comm)
 {
+  exaArray arr  =data->array;
+  exaDataType t =data->t;
+  exaUInt offset=data->offset;
+
   exaInt np=exaCommSize(comm);
 
   exaInt size=exaArrayGetSize(arr);
@@ -11,11 +15,7 @@ int exaArraySetBin(exaUInt **proc_,exaArray arr,exaDataType t,exaUInt offset,exa
   exaUInt *proc=*proc_;
 
   exaScalar extrema[2];
-  extrema[0]=getValueAsScalar(arr,0     ,offset,t),extrema[0]*=-1;
-  extrema[1]=getValueAsScalar(arr,size-1,offset,t);
-
-  exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
-  extrema[0]*=-1;
+  getArrayExtrema((void*)extrema,data,comm);
   exaScalar range=extrema[1]-extrema[0];
 
   exaInt id = 0;
@@ -35,10 +35,13 @@ int exaArraySetBin(exaUInt **proc_,exaArray arr,exaDataType t,exaUInt offset,exa
 
 int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,exaComm comm)
 {
+  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  data->array=array,data->t=t,data->offset=offset,data->algo=exaSortAlgoBinSort;
+
   exaSortArray(array,t,offset); /* local sort */
 
   exaUInt *proc;
-  exaArraySetBin(&proc,array,t,offset,comm); /* Set destination bin */
+  exaArraySetBin(&proc,data,comm); /* Set destination bin */
 
   exaArrayTransferExt(array,proc,comm); /* Transfer to destination processor */
   exaFree(proc);
@@ -46,4 +49,5 @@ int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,exaCo
   exaSortArray(array,t,offset); /* locally sort again */
   //if(loadBalance)
   //  exaArrayLoadBalance(array,t,offset,comm,buf);
+  exaFree(data);
 }

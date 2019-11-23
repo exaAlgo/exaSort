@@ -6,7 +6,18 @@
 
 #include <exasort.h>
 
+typedef struct{
+  exaArray array;
+  exaDataType t;
+  exaUInt offset;
+  int loadBalance;
+  exaSortAlgo algo;
+} exaSortData_private;
+typedef exaSortData_private* exaSortData;
+
+/* Helper functions */
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
+void getArrayExtrema(void *extrema,exaSortData data,exaComm comm);
 
 /* Local sort */
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);

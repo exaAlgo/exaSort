@@ -34,7 +34,7 @@ int main(int argc,char *argv[]) {
   }
 
   exaComm comm=exaGetComm(h);
-  exaBinSort(arr,exaScalar_t,offsetof(kvPair,key[1]),1,comm);
+  exaBinSort(arr,exaScalar_t,offsetof(kvPair,value),1,comm);
 
   kvPair *arrayData=exaArrayGetPointer(arr);
   if(exaRank(h)==0) printf("After sorting\n");

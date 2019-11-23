@@ -3,31 +3,13 @@
 
 #include "exasort-impl.h"
 
-#define histoSortInitProbes(T,array_,S,field,probes,probecounts,comm) \
-  do { \
-    /* Allocate space for probes and counts */ \
-    exaInt size=exaCommSize(comm); \
-    int nprobes=3*(size-1); \
-    exaMalloc(nprobes,&probes); \
-    exaMalloc(nprobes,&probecounts); \
-    \
-    /* TODO: Put in a macro */ \
-    T *ptr=exaArrayGetPointer(array_); \
-    exaInt n=exaArrayGetSize(array_); \
-    S extrema[2]; \
-    extrema[0]=-(ptr[0].field),extrema[1]=ptr[n-1].field; \
-    exaCommGop(comm,extrema,2,exaTypeGetDataType(S),EXA_MAX); \
-    extrema[0]*=-1; \
-    exaScalar range=extrema[1]-extrema[0]; \
-    exaScalar delta=range/size; \
-    \
-    exaInt i; \
-    for(i=1; i<size; i++) { \
-      h->histogram->probes[3*i-3]=extrema[0]; \
-      h->histogram->probes[3*i-2]=extrema[0]+i*delta; \
-      h->histogram->probes[3*i-1]=extrema[1]; \
-    } \
-  } while(0)
+typedef struct{
+  exaSortData data;
+  int nProbes;
+  void *probes;
+  exaULong *probeCounts;
+} exaHyperCubeSortData_private;
+typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
 
 #define histoSortUpdateProbeCounts(T,array_,field,probes,probecounts,comm) \
   do { \

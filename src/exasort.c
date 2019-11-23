@@ -35,3 +35,18 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType typ
 
  return data;
 }
+
+void getArrayExtrema(void *extrema_,exaSortData data,exaComm comm){
+  exaArray arr  =data->array;
+  exaUInt offset=data->offset;
+  exaDataType t =data->t;
+
+  exaInt size=exaArrayGetSize(arr);
+
+  exaScalar *extrema=(exaScalar *)extrema_;
+  extrema[0]=getValueAsScalar(arr,0     ,offset,t),extrema[0]*=-1;
+  extrema[1]=getValueAsScalar(arr,size-1,offset,t);
+
+  exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
+  extrema[0]*=-1;
+}
