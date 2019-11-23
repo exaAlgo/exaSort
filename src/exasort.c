@@ -36,10 +36,10 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType typ
  return data;
 }
 
-void getArrayExtrema(void *extrema_,exaSortData data,exaComm comm){
+void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm){
   exaArray arr  =data->array;
-  exaUInt offset=data->offset;
-  exaDataType t =data->t;
+  exaUInt offset=data->offset[field];
+  exaDataType t =data->t[field];
 
   exaInt size=exaArrayGetSize(arr);
 
