@@ -23,6 +23,7 @@ typedef struct{
   int nProbes;
   exaScalar *probes;
   exaULong *probeCounts;
+  exaUInt threshold;
 } exaHyperCubeSortData_private;
 typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
 
