@@ -50,3 +50,10 @@ void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm
   exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
   extrema[0]*=-1;
 }
+
+void arrayScan(exaLong out[2][1],exaArray array,exaComm comm)
+{
+  exaLong buf[2][1],in[1];
+  in[0]=exaArrayGetSize(array);
+  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
+}

@@ -18,9 +18,18 @@ typedef struct{
 } exaSortData_private;
 typedef exaSortData_private* exaSortData;
 
+typedef struct{
+  exaSortData data;
+  int nProbes;
+  exaScalar *probes;
+  exaULong *probeCounts;
+} exaHyperCubeSortData_private;
+typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
+
 /* Helper functions */
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
 void getArrayExtrema(void *extrema,exaSortData data,unsigned field,exaComm comm);
+void arrayScan(exaLong out[2][1],exaArray array,exaComm comm);
 
 /* Local sort */
 int exaSortLocal(exaSortData data);

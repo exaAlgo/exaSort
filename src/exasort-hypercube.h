@@ -3,41 +3,6 @@
 
 #include "exasort-impl.h"
 
-typedef struct{
-  exaSortData data;
-  int nProbes;
-  void *probes;
-  exaULong *probeCounts;
-} exaHyperCubeSortData_private;
-typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
-
-#define histoSortUpdateProbeCounts(T,array_,field,probes,probecounts,comm) \
-  do { \
-    exaInt lelt=exaArrayGetSize(array_); \
-    T *ptr=exaArrayGetPointer(array_); \
-    exaInt size=exaCommSize(comm); \
-    exaInt nprobes=3*(size-1); \
-    \
-    exaInt i; \
-    for(i=0; i<nprobes; i++) { \
-      probecounts[i]=0; \
-    } \
-    \
-    T *p,*e; \
-    for(p=ptr,e=p+lelt; p!=e; p++){ \
-      /* need to update as we don't keep the probes sorted */ \
-      /* TODO: This could be improved */ \
-      for(i=0; i<nprobes; i++){ \
-        if(p->field<probes[i]){ \
-          probecounts[i]++; \
-        } \
-      } \
-    } \
-    \
-    /* global reduction */\
-    exaReduce(c,probecounts,probecounts,nprobes,exaTypeGetDataType(exaLong),EXA_SUM); \
-  } while(0);
-
 inline int histoSortReachedThreshold(exaComm c,exaLong *probecounts,exaLong N,
                                      exaInt threshold)
 {
