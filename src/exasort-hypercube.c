@@ -1,5 +1,11 @@
 #include <exasort-impl.h>
-#include <exasort-hypercube.h>
+
+void arrayScan(exaLong out[2][1],exaArray array,exaComm comm)
+{
+  exaLong buf[2][1],in[1];
+  in[0]=exaArrayGetSize(array);
+  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
+}
 
 int initProbes(exaHyperCubeSortData data,exaComm comm)
 {
@@ -170,7 +176,11 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
     updateProbeCounts(data,comm);
   }
   transferElements(data,comm);
+
   // split the communicator
+  exaInt lower=(rank<size/2)?1:0;
+  exaCommSplit(comm,lower);
+
   exaHyperCubeSort(data,comm);
 
   return 0;

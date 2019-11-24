@@ -11,6 +11,7 @@ typedef enum{
 int exaSortArray (exaArray arr,exaDataType t ,exaUInt offset);
 int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,exaDataType t2,exaUInt offset2);
 
-int exaBinSort(exaArray array,exaDataType t,exaUInt offset,int loadBalance,exaComm comm);
+int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loadBalance,
+  exaComm comm);
 
 #endif // exasort

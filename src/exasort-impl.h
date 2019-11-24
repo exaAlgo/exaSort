@@ -7,7 +7,9 @@
 #include <exasort.h>
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
-
+//
+// exaSort: general functions
+//
 typedef struct{
   int nFields;
   exaArray array;
@@ -18,6 +20,19 @@ typedef struct{
 } exaSortData_private;
 typedef exaSortData_private* exaSortData;
 
+exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
+void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm);
+
+int exaSortLocal(exaSortData data);
+int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
+int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
+//
+// exaBinSort
+//
+int exaBinSort(exaSortData data,exaComm comm);
+//
+// exaHyperCubeSort
+//
 typedef struct{
   exaSortData data;
   int nProbes;
@@ -27,14 +42,5 @@ typedef struct{
 } exaHyperCubeSortData_private;
 typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
 
-/* Helper functions */
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
-void getArrayExtrema(void *extrema,exaSortData data,unsigned field,exaComm comm);
-void arrayScan(exaLong out[2][1],exaArray array,exaComm comm);
-
-/* Local sort */
-int exaSortLocal(exaSortData data);
-int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
-int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
-
+int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm);
 #endif // exasort-impl
