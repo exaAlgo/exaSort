@@ -34,7 +34,7 @@ int main(int argc,char *argv[]) {
   }
 
   exaComm comm=exaGetComm(h);
-  exaSort(arr,exaScalar_t,offsetof(kvPair,value),exaSortAlgoBinSort,1,comm);
+  exaSort(arr,exaScalar_t,offsetof(kvPair,value),exaSortAlgoHyperCubeSort,1,comm);
 
   kvPair *arrayData=exaArrayGetPointer(arr);
   if(exaRank(h)==0) printf("After sorting\n");

@@ -10,7 +10,7 @@ void arrayScan(exaLong out[2][1],exaArray array,exaComm comm)
 int initProbes(exaHyperCubeSortData data,exaComm comm)
 {
   /* get input data */
-  exaSortData input=(exaSortData)data;
+  exaSortData input=data->data;
 
   /* Allocate space for probes and counts */
   int nProbes=data->nProbes=3;
@@ -18,7 +18,7 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
   exaMallocArray(nProbes,sizeof(exaULong) ,(void**)&data->probeCounts);
 
   exaScalar extrema[2];
-  getArrayExtrema((void*)extrema,(exaSortData)data,0,comm);
+  getArrayExtrema((void*)extrema,data->data,0,comm);
   exaScalar range=extrema[1]-extrema[0];
   exaScalar delta=range/(nProbes-1);
 
@@ -30,7 +30,7 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
 
 int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
 {
-  exaSortData input=(exaSortData)data;
+  exaSortData input=data->data;
   exaArray array=input->array;
   exaUInt offset=input->offset[0];
   exaDataType t =input->t[0];
@@ -105,7 +105,7 @@ int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong n
 
 int transferElements(exaHyperCubeSortData data,exaComm comm)
 {
-  exaSortData input=(exaSortData)data;
+  exaSortData input=data->data;
   exaArray array=input->array;
   exaUInt offset=input->offset[0];
   exaDataType t =input->t[0];
@@ -145,13 +145,14 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
-int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
+int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm_)
 {
+  exaComm comm; exaCommDup(&comm,comm_);
+
   exaInt size=exaCommSize(comm);
   exaInt rank=exaCommRank(comm);
 
-  exaSortData input=(exaSortData)data;
-
+  exaSortData input=data->data;
   exaArray array=input->array;
   exaDataType t =input->t[0];
   exaUInt offset=input->offset[0];
@@ -165,7 +166,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   if(threshold<2) threshold=2;
   data->threshold=threshold;
 
-  exaSortLocal((exaSortData)data);
+  exaSortLocal(data->data);
 
   if(size==1) return 0;
 
@@ -179,7 +180,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   // split the communicator
   exaInt lower=(rank<size/2)?1:0;
-  exaCommSplit(comm,lower);
+  exaCommSplit(&comm,lower);
 
   exaHyperCubeSort(data,comm);
 
