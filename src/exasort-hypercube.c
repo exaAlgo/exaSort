@@ -29,7 +29,7 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   exaUInt offset=input->offset[0];
   exaDataType t =input->t[0];
 
-  exaInt lelt   =exaArrayGetSize(array);
+  exaInt size   =exaArrayGetSize(array);
   exaInt nProbes=data->nProbes;
 
   exaUInt i;
@@ -38,7 +38,7 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   }
 
   exaUInt e;
-  for(e=0;e<lelt;e++){
+  for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     for(i=0;i<nProbes;i++)
       if(val_e<data->probes[i]) data->probeCounts[i]++;
@@ -75,6 +75,28 @@ int updateProbes(exaLong nElements,exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
+int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
+{
+  exaUInt partitionSize=nElements/np;
+  exaUInt nrem=nElements-np*partitionSize;
+
+  exaUInt i;
+  if(partitionSize==0){
+    for(i=0;i<size;i++)
+      proc[i]=i;
+    return 0;
+  }
+
+  for(i=0;i<size;i++){
+    exaUInt id=start+i+1;
+    exaUInt offset=id%partitionSize;
+    exaUInt rank=(id-offset)/partitionSize;
+    proc[i]=rank;
+  }
+
+  return 0;
+}
+
 int transferElements(exaHyperCubeSortData data,exaComm comm)
 {
   exaSortData input=(exaSortData)data;
@@ -82,22 +104,37 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
   exaUInt offset=input->offset[0];
   exaDataType t =input->t[0];
 
-  exaInt lelt=exaArrayGetSize(array);
+  exaInt size=exaArrayGetSize(array);
 
-  exaUInt e,lower=0,upper=0;
-  for(e=0;e<lelt;e++){
+  exaUInt e,lowerSize=0,upperSize=0;
+  for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
-    if(val_e<data->probes[1]) lower++;
-    else upper++;
+    if(val_e<data->probes[1]) lowerSize++;
+    else upperSize++;
   }
 
   exaLong out[2][2],in[2],buf[2][2];
-  in[0]=lower,in[1]=upper;
+  in[0]=lowerSize,in[1]=upperSize;
   exaCommScan(comm,out,in,buf,2,exaLong_t,exaAddOp);
-  exaLong lowerstart=out[0][0];
-  exaLong upperstart=out[0][1];
+
+  exaLong lowerStart=out[0][0];
+  exaLong upperStart=out[0][1];
   exaLong lowerElements=out[1][0];
   exaLong upperElements=out[1][1];
+
+  exaInt np=exaCommSize(comm);
+  exaInt lowerNp=np/2;
+  exaInt upperNp=np-lowerNp;
+
+  exaUInt *proc;
+  exaCalloc(size,&proc);
+
+  setDestination(proc            ,lowerNp,lowerStart,lowerSize,lowerElements);
+  setDestination(&proc[lowerSize],upperNp,upperStart,upperSize,upperElements);
+
+  exaArrayTransferExt(array,proc,comm);
+
+  exaFree(proc);
 
   return 0;
 }
@@ -133,7 +170,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
     updateProbeCounts(data,comm);
   }
   transferElements(data,comm);
-  //exasplitcomm
+  // split the communicator
   exaHyperCubeSort(data,comm);
 
   return 0;
