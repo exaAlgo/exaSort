@@ -47,7 +47,7 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     for(i=0;i<nProbes;i++)
-      if(val_e<data->probes[i]) data->probeCounts[i]++;
+      if(val_e<data->probes[i] || fabs(val_e-data->probes[i])<EXA_TOL) data->probeCounts[i]++;
   }
 
   exaCommGop(comm,data->probeCounts,nProbes,exaULong_t,exaAddOp);
@@ -84,7 +84,6 @@ int updateProbes(exaLong nElements,exaHyperCubeSortData data,exaComm comm)
 int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
 {
   exaUInt partitionSize=nElements/np;
-  exaUInt nrem=nElements-np*partitionSize;
 
   exaUInt i;
   if(partitionSize==0){
@@ -137,6 +136,7 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 
   setDestination(proc            ,lowerNp,lowerStart,lowerSize,lowerElements);
   setDestination(&proc[lowerSize],upperNp,upperStart,upperSize,upperElements);
+  for(e=0;e<upperSize;e++) proc[e]+=lowerNp;
 
   exaArrayTransferExt(array,proc,comm);
 
