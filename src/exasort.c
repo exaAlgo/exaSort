@@ -1,10 +1,35 @@
 #include <exasort-impl.h>
 
+int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
+{
+  exaUInt partitionSize=nElements/np;
+  exaUInt nrem=nElements-np*partitionSize;
+  exaUInt i;
+  if(partitionSize==0){
+    for(i=0;i<size;i++)
+      proc[i]=start+i;
+    return 0;
+  }
+
+  exaUInt id1=(start+1)/partitionSize;
+  exaUInt id2=(start+size+1-nrem)/partitionSize;
+
+  i=0;
+  for(;id1<=id2;id1++){
+    exaULong s=id1*partitionSize+min(id1,nrem);
+    exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
+    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
+  }
+
+  return 0;
+}
+
 int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loadBalance,
   exaComm comm)
 {
   exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=array,data->t[0]=t,data->offset[0]=offset,data->nFields=1;
+  data->loadBalance=loadBalance;
 
   exaHyperCubeSortData hdata;
   exaComm comm_;
@@ -24,7 +49,35 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loa
       break;
   }
 
+  if(loadBalance){
+    exaLoadBalance(data->array,comm);
+    exaSortLocal(data);
+  }
+
   exaFree(data);
+}
+
+int exaLoadBalance(exaArray array,exaComm comm)
+{
+  exaLong out[2][1];
+  exaArrayScan(out,array,comm);
+  exaULong start=out[0][0];
+  exaULong nElements=out[1][0];
+
+  exaUInt size=exaArrayGetSize(array);
+  exaInt *proc; exaCalloc(size,&proc);
+  setDestination(proc,exaCommSize(comm),start,size,nElements);
+  exaArrayTransferExt(array,proc,comm);
+  exaFree(proc);
+
+  return 0;
+}
+
+void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
+{
+  exaLong buf[2][1],in[1];
+  in[0]=exaArrayGetSize(array);
+  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
 }
 
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type)

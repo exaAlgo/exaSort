@@ -1,12 +1,5 @@
 #include <exasort-impl.h>
 
-void arrayScan(exaLong out[2][1],exaArray array,exaComm comm)
-{
-  exaLong buf[2][1],in[1];
-  in[0]=exaArrayGetSize(array);
-  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
-}
-
 int initProbes(exaHyperCubeSortData data,exaComm comm)
 {
   /* get input data */
@@ -87,30 +80,6 @@ int updateProbes(exaLong nElements,exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
-int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
-{
-  exaUInt partitionSize=nElements/np;
-  exaUInt nrem=nElements-np*partitionSize;
-  exaUInt i;
-  if(partitionSize==0){
-    for(i=0;i<size;i++)
-      proc[i]=start+i;
-    return 0;
-  }
-
-  exaUInt id1=(start+1)/partitionSize;
-  exaUInt id2=(start+size+1-nrem)/partitionSize;
-
-  i=0;
-  for(;id1<=id2;id1++){
-    exaULong s=id1*partitionSize+min(id1,nrem);
-    exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
-    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
-  }
-
-  return 0;
-}
-
 int transferElements(exaHyperCubeSortData data,exaComm comm)
 {
   exaSortData input=data->data;
@@ -172,7 +141,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   exaUInt offset=input->offset[0];
 
   exaLong out[2][1];
-  arrayScan(out,array,comm);
+  exaArrayScan(out,array,comm);
   exaLong start=out[0][0];
   exaLong nElements=out[1][0];
 
@@ -195,6 +164,9 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   // split the communicator
   exaInt lower=(rank<size/2)?1:0;
   exaCommSplit(&comm,lower);
+
+  int loadBalance=input->loadBalance;
+  if(loadBalance) exaLoadBalance(input->array,comm);
 
   exaHyperCubeSort(data,comm);
 

@@ -1,7 +1,7 @@
 #include <exasort-impl.h>
 
 /* assumes array is locally sorted */
-int exaArraySetBin(exaUInt **proc_,exaSortData data,exaComm comm)
+int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
 {
   exaArray arr  =data->array;
   exaDataType t =data->t[0];
@@ -37,13 +37,10 @@ int exaBinSort(exaSortData data,exaComm comm)
   exaSortLocal(data); /* local sort */
 
   exaUInt *proc;
-  exaArraySetBin(&proc,data,comm); /* Set destination bin */
+  setBin(&proc,data,comm); /* Set destination bin */
 
   exaArrayTransferExt(data->array,proc,comm); /* Transfer to destination processor */
   exaFree(proc);
 
   exaSortLocal(data); /* locally sort again */
-
-  //if(loadBalance)
-  //  exaArrayLoadBalance(array,t,offset,comm,buf);
 }

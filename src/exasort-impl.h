@@ -20,8 +20,9 @@ typedef struct{
 } exaSortData_private;
 typedef exaSortData_private* exaSortData;
 
+int       setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements);
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
-void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm);
+void      getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm);
 
 int exaSortLocal(exaSortData data);
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
