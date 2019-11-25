@@ -29,38 +29,38 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loa
 
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type)
 {
- char* v=((char*)exaArrayGetPointer(arr)+i*exaArrayGetUnitSize(arr)+offset);
- exaInt dataI;
- exaUInt dataUi;
- exaLong dataL;
- exaULong dataUl;
- exaScalar data;
+  char* v=((char*)exaArrayGetPointer(arr)+i*exaArrayGetUnitSize(arr)+offset);
+  exaInt dataI;
+  exaUInt dataUi;
+  exaLong dataL;
+  exaULong dataUl;
+  exaScalar data;
 
- switch(type){
-   case exaInt_t:
-     dataI=*((exaInt*)v);
-     data=dataI;
-     break;
-   case exaUInt_t:
-     dataUi=*((exaUInt*)v);
-     data=dataUi;
-     break;
-   case exaLong_t:
-     dataL=*((exaLong*)v);
-     data=dataL;
-     break;
-   case exaULong_t:
-     dataUl=*((exaULong*)v);
-     data=dataUl;
-     break;
-   case exaScalar_t:
-     data=*((exaScalar*)v);
-     break;
-   default:
-     break;
- }
+  switch(type){
+    case exaInt_t:
+      dataI=*((exaInt*)v);
+      data=dataI;
+      break;
+    case exaUInt_t:
+      dataUi=*((exaUInt*)v);
+      data=dataUi;
+      break;
+    case exaLong_t:
+      dataL=*((exaLong*)v);
+      data=dataL;
+      break;
+    case exaULong_t:
+      dataUl=*((exaULong*)v);
+      data=dataUl;
+      break;
+    case exaScalar_t:
+      data=*((exaScalar*)v);
+      break;
+    default:
+      break;
+  }
 
- return data;
+  return data;
 }
 
 void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm)
@@ -69,11 +69,16 @@ void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm
   exaUInt offset=data->offset[field];
   exaDataType t =data->t[field];
 
-  exaInt size=exaArrayGetSize(arr);
-
   exaScalar *extrema=(exaScalar *)extrema_;
-  extrema[0]=getValueAsScalar(arr,0     ,offset,t),extrema[0]*=-1;
-  extrema[1]=getValueAsScalar(arr,size-1,offset,t);
+
+  exaInt size=exaArrayGetSize(arr);
+  if(size==0){
+    extrema[0]=-DBL_MAX;
+    extrema[1]=-DBL_MAX;
+  } else {
+    extrema[0]=getValueAsScalar(arr,0     ,offset,t),extrema[0]*=-1;
+    extrema[1]=getValueAsScalar(arr,size-1,offset,t);
+  }
 
   exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
   extrema[0]*=-1;

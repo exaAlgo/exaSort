@@ -25,6 +25,12 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
   data->probes[0]=extrema[0];
   data->probes[1]=extrema[0]+delta;
   data->probes[2]=extrema[1];
+
+#if 0
+  if(exaCommRank(comm)==0)
+    printf("(%lf,%lf,%lf)\n",data->probes[0],data->probes[1],data->probes[2]);
+#endif
+
   return 0;
 }
 
@@ -84,17 +90,22 @@ int updateProbes(exaLong nElements,exaHyperCubeSortData data,exaComm comm)
 int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
 {
   exaUInt partitionSize=nElements/np;
+  exaUInt nrem=nElements-np*partitionSize;
   exaUInt i;
-  if(partitionSize==0 || partitionSize==1){
+  if(partitionSize==0){
     for(i=0;i<size;i++)
       proc[i]=start+i;
     return 0;
   }
 
-  for(i=0;i<size;i++){
-    exaUInt id=start+i+1;
-    exaUInt rank=(id+partitionSize-1)/partitionSize-1;
-    proc[i]=rank;
+  exaUInt id1=(start+1)/partitionSize;
+  exaUInt id2=(start+size+1-nrem)/partitionSize;
+
+  i=0;
+  for(;id1<=id2;id1++){
+    exaULong s=id1*partitionSize+min(id1,nrem);
+    exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
+    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
   }
 
   return 0;
