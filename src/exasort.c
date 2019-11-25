@@ -7,6 +7,7 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loa
   data->array=array,data->t[0]=t,data->offset[0]=offset,data->nFields=1;
 
   exaHyperCubeSortData hdata;
+  exaComm comm_;
 
   switch(algo){
     case exaSortAlgoBinSort:
@@ -15,7 +16,8 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loa
     case exaSortAlgoHyperCubeSort:
       exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
       hdata->data=data;
-      exaHyperCubeSort(hdata,comm);
+      exaCommDup(&comm_,comm);
+      exaHyperCubeSort(hdata,comm_);
       exaFree(hdata);
       break;
     default:
