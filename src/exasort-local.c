@@ -5,11 +5,12 @@ int exaSortLocal(exaSortData data)
   exaBuffer buf; exaBufferCreate(&buf,0); // Initializing with zero size;
 
   exaArray arr=data->array;
-  int nFields=data->nFields,i=0;
+  int nFields=data->nFields;
+  int i=nFields-1;
 
-  exaSortField(arr,data->t[i],data->offset[i],buf,0),i++;
-  while(i<nFields)
-    exaSortField(arr,data->t[i],data->offset[i],buf,1),i++;
+  exaSortField(arr,data->t[i],data->offset[i],buf,0),i--;
+  while(i>=0)
+    exaSortField(arr,data->t[i],data->offset[i],buf,1),i--;
 
   exaSortPermuteBuf(arr,buf);
   exaFree(buf);

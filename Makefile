@@ -18,6 +18,7 @@ PREFIX ?= $(HOME)/local/exaSort
 ### Meta info about the package ###
 SRCDIR ?= src
 EXAMPLESDIR ?= examples
+TESTSDIR ?= tests
 BUILDDIR ?= build
 DEPDIR ?= .deps
 
@@ -26,6 +27,8 @@ OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
 DEPS = $(patsubst $(BUILDDIR)/%.o,$(DEPDIR)/%.d,$(OBJS))
 EXAMPLESRCS = $(wildcard $(EXAMPLESDIR)/*.c)
 EXAMPLEOBJS = $(patsubst $(EXAMPLESDIR)/%.c,$(BUILDDIR)/examples/%,$(EXAMPLESRCS))
+TESTSRCS = $(wildcard $(TESTSDIR)/*.c)
+TESTOBJS = $(patsubst $(TESTSDIR)/%.c,$(BUILDDIR)/tests/%,$(TESTSRCS))
 
 ### Set various flags ###
 ifneq ($(DEBUG),0)
@@ -42,7 +45,7 @@ LIBNAME   = libexaSort.$(EXT)
 
 ### Make targets ###
 .PHONY: all
-all: lib install examples
+all: lib install examples tests
 
 .PHONY: lib
 lib: $(OBJS)
@@ -71,6 +74,12 @@ examples: $(EXAMPLEOBJS)
 $(BUILDDIR)/examples/%: $(EXAMPLESDIR)/%.c
 	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
 
+.PHONY: tests
+tests: $(TESTOBJS)
+
+$(BUILDDIR)/tests/%: $(TESTSDIR)/%.c
+	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
+
 .PHONY: clean
 clean:
 	@rm -rf $(BUILDDIR) $(DEPDIR)
@@ -81,4 +90,5 @@ print :
 
 $(shell mkdir -p $(BUILDDIR))
 $(shell mkdir -p $(BUILDDIR)/examples)
+$(shell mkdir -p $(BUILDDIR)/tests)
 $(shell mkdir -p $(DEPDIR))

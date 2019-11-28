@@ -29,8 +29,16 @@ int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,
       gslib_sortp_ull(&buf->buf,keep,(exaULong*)((char*)ptr+fieldOffset),
         nUnits,unitSize);
       break;
+    case exaLong_t:
+      gslib_sortp_ull(&buf->buf,keep,(exaLong* )((char*)ptr+fieldOffset),
+        nUnits,unitSize);
+      break;
     case exaUInt_t:
       gslib_sortp_ui (&buf->buf,keep,(exaUInt* )((char*)ptr+fieldOffset),
+        nUnits,unitSize);
+      break;
+    case exaInt_t:
+      gslib_sortp_ui (&buf->buf,keep,(exaInt*  )((char*)ptr+fieldOffset),
         nUnits,unitSize);
       break;
     default:
