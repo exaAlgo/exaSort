@@ -69,16 +69,11 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(compile.c) -c $< -o $@ $(LDFLAGS)
 
 .PHONY: examples
-examples: $(EXAMPLEOBJS)
+examples: lib $(EXAMPLEOBJS)
 
-$(BUILDDIR)/examples/%: $(EXAMPLESDIR)/%.c
-	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
-
-.PHONY: tests
-tests: $(TESTOBJS)
-
-$(BUILDDIR)/tests/%: $(TESTSDIR)/%.c
-	$(compile.c) $< -o $@ -I$(SRCDIR) -L$(BUILDDIR) -lexaSort $(LDFLAGS)
+.PHONY: test
+test: lib $(TESTOBJS)
+	BUILDDIR=$(BUILDDIR) ./tests/run-tests.sh
 
 .PHONY: clean
 clean:
@@ -87,6 +82,12 @@ clean:
 .PHONY: print
 print :
 	@echo $(VAR)=$($(VAR))
+
+$(BUILDDIR)/examples/%: $(EXAMPLESDIR)/%.c
+	$(compile.c) $< -o $@ -L$(BUILDDIR) -lexaSort $(LDFLAGS)
+
+$(BUILDDIR)/tests/%: $(TESTSDIR)/%.c
+	$(compile.c) $< -o $@ -L$(BUILDDIR) -lexaSort $(LDFLAGS)
 
 $(shell mkdir -p $(BUILDDIR))
 $(shell mkdir -p $(BUILDDIR)/examples)
