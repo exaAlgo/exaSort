@@ -7,12 +7,12 @@ int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong n
   exaUInt i;
   if(partitionSize==0){
     for(i=0;i<size;i++)
-      proc[i]=start+i;
+      proc[i]=i;
     return 0;
   }
 
-  exaUInt id1=(start+1)/partitionSize;
-  exaUInt id2=(start+size+1-nrem)/partitionSize;
+  exaUInt id1=start/partitionSize;
+  exaUInt id2=(start+size+1-nrem)/partitionSize+1;
 
   i=0;
   for(;id1<=id2;id1++){
@@ -22,39 +22,6 @@ int setDestination(exaInt *proc,exaInt np,exaULong start,exaUInt size,exaULong n
   }
 
   return 0;
-}
-
-int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loadBalance,
-  exaComm comm)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=array,data->t[0]=t,data->offset[0]=offset,data->nFields=1;
-  data->loadBalance=loadBalance;
-
-  exaHyperCubeSortData hdata;
-  exaComm comm_;
-
-  switch(algo){
-    case exaSortAlgoBinSort:
-      exaBinSort(data,comm);
-      break;
-    case exaSortAlgoHyperCubeSort:
-      exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
-      hdata->data=data;
-      exaCommDup(&comm_,comm);
-      exaHyperCubeSort(hdata,comm_);
-      exaFree(hdata);
-      break;
-    default:
-      break;
-  }
-
-  if(loadBalance){
-    exaLoadBalance(data->array,comm);
-    exaSortLocal(data);
-  }
-
-  exaFree(data);
 }
 
 int exaLoadBalance(exaArray array,exaComm comm)
@@ -71,6 +38,41 @@ int exaLoadBalance(exaArray array,exaComm comm)
   exaFree(proc);
 
   return 0;
+}
+
+int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loadBalance,
+  exaComm comm)
+{
+  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  data->array=array,data->t[0]=t,data->offset[0]=offset;
+  data->nFields=1;
+  data->loadBalance=loadBalance;
+
+  exaHyperCubeSortData hdata;
+  exaComm comm_;
+
+  switch(algo){
+    case exaSortAlgoBinSort:
+      exaBinSort(data,comm);
+      break;
+    case exaSortAlgoHyperCubeSort:
+      exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
+      exaCommDup(&comm_,comm);
+      hdata->data=data;
+      exaHyperCubeSort(hdata,comm_);
+      exaDestroy(comm_);
+      exaFree(hdata);
+      break;
+    default:
+      break;
+  }
+
+  if(loadBalance){
+    exaLoadBalance(data->array,comm);
+    exaSortLocal(data);
+  }
+
+  exaFree(data);
 }
 
 void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)

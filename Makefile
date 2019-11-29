@@ -17,10 +17,10 @@ PREFIX ?= $(HOME)/local/exaSort
 
 ### Meta info about the package ###
 SRCDIR ?= src
-EXAMPLESDIR ?= examples
-TESTSDIR ?= tests
 BUILDDIR ?= build
 DEPDIR ?= .deps
+EXAMPLESDIR ?= examples
+TESTSDIR ?= tests
 
 SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
@@ -60,8 +60,6 @@ install: lib
 
 $(DEPDIR)/%.src.d: $(SRCDIR)/%.c
 	@$(CPP) $(CFLAGS) $(incflags) $< -MM -MT $(@:$(DEPDIR)/%.src.d=$(BUILDDIR)/%.src.deps) >$@
-$(DEPDIR)/%.ex.d: $(EXAMPLESDIR)/%.c
-	@$(CPP) $(CFLAGS) $(incflags) $< -MM -MT $(@:$(DEPDIR)/%.ex.d=$(BUILDDIR)/%.ex.deps) >$@
 
 -include $(DEPS)
 
