@@ -60,7 +60,6 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loa
       exaCommDup(&comm_,comm);
       hdata->data=data;
       exaHyperCubeSort(hdata,comm_);
-      exaDestroy(comm_);
       exaFree(hdata);
       break;
     default:

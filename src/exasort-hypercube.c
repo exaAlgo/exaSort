@@ -151,7 +151,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   exaSortLocal(data->data);
 
-  if(size==1){ exaCommDestroy(comm); return 0; }
+  if(size==1){ exaDestroy(comm); return 0;}
 
   initProbes(data,comm);
   updateProbeCounts(data,comm);
