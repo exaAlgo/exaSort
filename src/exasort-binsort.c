@@ -17,6 +17,8 @@ int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
   getArrayExtrema((void*)extrema,data,0,comm);
   exaScalar range=extrema[1]-extrema[0];
 
+  if(size==0) return 0;
+
   exaInt id = 0;
   exaUInt index=0;
   do{
@@ -27,7 +29,7 @@ int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
     for(; index<size && getValueAsScalar(arr,index,offset,t)<end; index++)
       proc[index]=id;
     id++;
-  }while(id<np);
+  }while(id<np && index<size);
   for(; index<size; index++)
     proc[index]=id-1;
 }
