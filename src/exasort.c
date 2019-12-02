@@ -11,8 +11,8 @@ int setDestination(exaUInt *proc,exaInt np,exaULong start,exaUInt size,exaULong 
     return 0;
   }
 
-  exaUInt id1=start/partitionSize;
-  exaUInt id2=(start+size+1-nrem)/partitionSize+1;
+  exaUInt id1=start/(partitionSize+1);
+  exaUInt id2=(start+size-nrem)/partitionSize+1;
 
   i=0;
   for(;id1<=id2;id1++){
