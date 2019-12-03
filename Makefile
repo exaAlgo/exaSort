@@ -23,6 +23,7 @@ EXAMPLESDIR = examples
 TESTSDIR    = tests
 
 LDFLAGS += -L$(EXADIR)/lib -lexa
+incflags = -I$(EXADIR)/include
 libname  = exaSort
 
 ### Include template makefile ###
