@@ -27,11 +27,19 @@ incflags = -I$(EXADIR)/include
 libname  = exaSort
 
 ### Include template makefile ###
--include $(EXADIR)/share/Makefile.in
+-include $(EXADIR)/share/exa-base.mk
+
+.PHONY: lib
+lib: lib-base
+
+.PHONY: examples
+examples: examples-base
+
+.PHONY: tests
+tests: tests-base
 
 .PHONY: install
-install: lib
-	@mkdir -p $(DESTDIR)$(PREFIX)/include
-	@cp -u $(SRCDIR)/*.h $(GSDIR)/include/*.h $(DESTDIR)$(PREFIX)/include/
-	@mkdir -p $(DESTDIR)$(PREFIX)/lib
-	@cp -u $(BUILDDIR)/$(prefix)$(libname).$(ext) $(DESTDIR)$(PREFIX)/lib/
+install: install-base
+
+.PHONY: all
+all: lib examples tests install
