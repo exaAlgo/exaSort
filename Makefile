@@ -37,6 +37,8 @@ examples: examples-base
 
 .PHONY: tests
 tests: tests-base
+	@cp $(EXADIR)/share/run-tests.sh $(BUILDDIR)/$(TESTSDIR)
+	@cd $(BUILDDIR)/$(TESTSDIR) && ./run-tests.sh
 
 .PHONY: install
 install: install-base

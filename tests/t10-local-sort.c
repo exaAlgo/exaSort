@@ -13,9 +13,14 @@ typedef struct{
 int main(int argc,char *argv[]){
   MPI_Init(&argc,&argv);
 
-  exaSettings s; exaSettingsInit(&s);
-  exaSettingsSetSetting("backend","/opencl/gpu",s);
-  exaSettingsSetSetting("debug","on",s);
+  if(argc!=2){
+    printf("Usage: %s <backend>\n",argv[0]);
+    exit(0);
+  }
+
+  exaSettings s;
+  exaSettingsInit(&s);
+  exaSettingsSetSetting("backend",argv[1],s);
 
   exaHandle h;
   exaInit(&h,MPI_COMM_WORLD,s);
@@ -45,8 +50,10 @@ int main(int argc,char *argv[]){
     int start=j*N;
     if(start>0) assert(ptr[start-1].data1<=ptr[start].data1);
     for(i=0;i<N-1;i++){
-      assert(ptr[start+i].data1==ptr[start+i+1].data1);
-      assert(ptr[start+i].data2<=ptr[start+i+1].data2);
+      if(ptr[start+i].data1!=ptr[start+i+1].data1)
+        fprintf(stderr,"Error: element %d and %d are not the same.",start+i,start+i+1);
+      if(ptr[start+i].data2>ptr[start+i+1].data2)
+        fprintf(stderr,"Error: element %d is larger than  %d.",start+i,start+i+1);
     }
   }
 
