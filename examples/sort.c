@@ -17,10 +17,6 @@ int main(int argc,char *argv[]) {
     exit(0);
   }
 
-  exaSettings s;
-  exaSettingsInit(&s);
-  exaSettingsSetSetting("backend",argv[1],s);
-
   exaSortAlgo algo;
   if(strcmp(argv[2],"bin")==0)
     algo=exaSortAlgoBinSort;
@@ -29,7 +25,7 @@ int main(int argc,char *argv[]) {
   else { printf("Wrong algorithm\n"); exit(0); }
 
   exaHandle h;
-  exaInit(&h,MPI_COMM_WORLD,s);
+  exaInit(&h,MPI_COMM_WORLD,argv[1]);
 
   exaArray arr;
   size_t size=exaRank(h)+5;
@@ -61,7 +57,6 @@ int main(int argc,char *argv[]) {
     }
   }
 
-  exaDestroy(s);
   exaDestroy(arr);
   exaFinalize(h);
 
