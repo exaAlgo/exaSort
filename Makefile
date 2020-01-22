@@ -26,6 +26,9 @@ LDFLAGS += -L$(EXADIR)/lib -lexa
 INCFLAGS = -I$(EXADIR)/include
 libName  = exaSort
 
+# No need of occa (TODO: Should read from exa install config)
+OCCA=0
+
 ### Include template makefile ###
 -include $(EXADIR)/share/exa-base.mk
 
