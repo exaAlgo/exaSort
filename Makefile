@@ -7,7 +7,8 @@ CPPFLAGS ?=
 LDFLAGS ?=
 
 # Dependency locations
-EXADIR ?=
+EXA_DIR ?=
+GS_DIR ?=
 
 # Build options
 DEBUG ?= 1
@@ -22,15 +23,15 @@ DEPDIR      = .deps
 EXAMPLESDIR = examples
 TESTSDIR    = tests
 
-LDFLAGS += -L$(EXADIR)/lib -lexa
-INCFLAGS = -I$(EXADIR)/include
+LDFLAGS += -L$(EXA_DIR)/lib -lexa
+INCFLAGS = -I$(EXA_DIR)/include -I$(GS_DIR)/include
 libName  = exaSort
 
 # No need of occa (TODO: Should read from exa install config)
 OCCA=0
 
 ### Include template makefile ###
--include $(EXADIR)/share/exa-base.mk
+-include $(EXA_DIR)/share/exa-base.mk
 
 .PHONY: lib
 lib: lib-base
@@ -40,7 +41,7 @@ examples: examples-base
 
 .PHONY: tests
 tests: tests-base
-	@cp $(EXADIR)/share/run-tests.sh $(BUILDDIR)/$(TESTSDIR)
+	@cp $(EXA_DIR)/share/run-tests.sh $(BUILDDIR)/$(TESTSDIR)
 	@cd $(BUILDDIR)/$(TESTSDIR) && ./run-tests.sh
 
 .PHONY: install
