@@ -23,8 +23,8 @@ DEPDIR      = .deps
 EXAMPLESDIR = examples
 TESTSDIR    = tests
 
-LDFLAGS += -L$(EXA_DIR)/lib -lexa -L$(GS_DIR)/lib -lgs
-INCFLAGS = -I$(EXA_DIR)/include -I$(GS_DIR)/include
+LDFLAGS += -L$(EXA_DIR)/lib -lexa -L$(GS_DIR)/lib -lgs -lm
+INCFLAGS = -I$(EXA_DIR)/include -I$(GS_DIR)/include -I$(SRCDIR)
 libName  = exaSort
 
 # No need of occa (TODO: Should read from exa install config)
