@@ -23,7 +23,7 @@ DEPDIR      = .deps
 EXAMPLESDIR = examples
 TESTSDIR    = tests
 
-LDFLAGS += -L$(EXA_DIR)/lib -lexa
+LDFLAGS += -L$(EXA_DIR)/lib -lexa -L$(GS_DIR)/lib -lgs
 INCFLAGS = -I$(EXA_DIR)/include -I$(GS_DIR)/include
 libName  = exaSort
 
