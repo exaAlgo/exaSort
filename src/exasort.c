@@ -1,6 +1,7 @@
 #include <exasort-impl.h>
 
-int setDestination(exaUInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements)
+int setDestination(exaUInt *proc,exaInt np,exaULong start,
+  exaUInt size,exaULong nElements)
 {
   exaUInt partitionSize=nElements/np;
   exaUInt nrem=nElements-np*partitionSize;
@@ -40,8 +41,8 @@ int exaLoadBalance(exaArray array,exaComm comm)
   return 0;
 }
 
-int exaSort(exaArray array,exaDataType t,exaUInt offset,exaSortAlgo algo,int loadBalance,
-  exaComm comm)
+int exaSort(exaArray array,exaDataType t,exaUInt offset,
+  exaSortAlgo algo,int loadBalance,exaComm comm)
 {
   exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=array,data->t[0]=t,data->offset[0]=offset;
@@ -81,9 +82,12 @@ void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
   exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
 }
 
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type)
+exaScalar getValueAsScalar(exaArray arr,exaUInt i,
+  exaUInt offset,exaDataType type)
 {
-  char* v=((char*)exaArrayGetPointer(arr)+i*exaArrayGetUnitSize(arr)+offset);
+  char* v=((char*)exaArrayGetPointer(arr)+\
+    i*exaArrayGetUnitSize(arr)+offset);
+
   exaInt dataI;
   exaUInt dataUi;
   exaLong dataL;
@@ -117,7 +121,8 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType typ
   return data;
 }
 
-void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm)
+void getArrayExtrema(void *extrema_,exaSortData data,
+  unsigned field,exaComm comm)
 {
   exaArray arr  =data->array;
   exaUInt offset=data->offset[field];
@@ -130,7 +135,7 @@ void getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm
     extrema[0]=-DBL_MAX;
     extrema[1]=-DBL_MAX;
   } else {
-    extrema[0]=getValueAsScalar(arr,0     ,offset,t),extrema[0]*=-1;
+    extrema[0]=getValueAsScalar(arr,0,offset,t),extrema[0]*=-1;
     extrema[1]=getValueAsScalar(arr,size-1,offset,t);
   }
 
