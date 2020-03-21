@@ -163,7 +163,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   // split the communicator
   exaInt lower=(rank<size/2)?1:0;
-  exaCommSplit(&comm,lower);
+  exaCommSplit(&comm,lower,rank);
 
   int loadBalance=input->loadBalance;
   if(loadBalance) exaLoadBalance(input->array,comm);
