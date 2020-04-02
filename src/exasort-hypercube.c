@@ -7,8 +7,10 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
 
   /* Allocate space for probes and counts */
   int nProbes=data->nProbes=3;
-  exaMallocArray(nProbes,sizeof(exaScalar),(void**)&data->probes     );
-  exaMallocArray(nProbes,sizeof(exaULong) ,(void**)&data->probeCounts);
+  exaMallocArray(nProbes,sizeof(exaScalar),
+    (void**)&data->probes);
+  exaMallocArray(nProbes,sizeof(exaULong),
+    (void**)&data->probeCounts);
 
   exaScalar extrema[2];
   getArrayExtrema((void*)extrema,data->data,0,comm);
@@ -18,11 +20,6 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
   data->probes[0]=extrema[0];
   data->probes[1]=extrema[0]+delta;
   data->probes[2]=extrema[1];
-
-#if 0
-  if(exaCommRank(comm)==0)
-    printf("(%lf,%lf,%lf)\n",data->probes[0],data->probes[1],data->probes[2]);
-#endif
 
   return 0;
 }
@@ -46,7 +43,9 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     for(i=0;i<nProbes;i++)
-      if(val_e<data->probes[i] || fabs(val_e-data->probes[i])<EXA_TOL) data->probeCounts[i]++;
+      if(val_e<data->probes[i] ||
+         fabs(val_e-data->probes[i])<EXA_TOL)
+        data->probeCounts[i]++;
   }
 
   exaCommGop(comm,data->probeCounts,nProbes,exaULong_t,exaAddOp);
@@ -54,23 +53,27 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
-int reachedThreshold(exaLong nElements,exaHyperCubeSortData data,exaComm c)
+int reachedThreshold(exaLong nElements,exaHyperCubeSortData data,
+  exaComm c)
 {
   int converged=1;
 
   exaULong expected=nElements/2;
-  if(abs(data->probeCounts[1]-expected)>data->threshold) converged=0;
+  if(abs(data->probeCounts[1]-expected)>data->threshold)
+    converged=0;
 
   return converged;
 }
 
-int updateProbes(exaLong nElements,exaHyperCubeSortData data,exaComm comm)
+int updateProbes(exaLong nElements,exaHyperCubeSortData data,
+  exaComm comm)
 {
   exaULong *probeCounts=data->probeCounts;
   exaScalar *probes=data->probes;
 
   exaLong expected=nElements/2;
-  if(abs(data->probeCounts[1]-expected)<data->threshold) return 0;
+  if(abs(data->probeCounts[1]-expected)<data->threshold)
+    return 0;
 
   if(probeCounts[1]<expected) probes[0]=probes[1];
   else probes[2]=probes[1];
@@ -92,7 +95,9 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
   exaUInt e,lowerSize=0,upperSize=0;
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
-    if(val_e<data->probes[1] || fabs(val_e-data->probes[1])<EXA_TOL) lowerSize++;
+    if(val_e<data->probes[1] ||
+       fabs(val_e-data->probes[1])<EXA_TOL)
+      lowerSize++;
     else upperSize++;
   }
 
@@ -112,15 +117,10 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
   exaUInt *proc;
   exaCalloc(size,&proc);
 
-#if 0
-  printf("lowerElements=%lld lowerNp=%d lowerStart=%lld lowerSize=%u\n",lowerElements,lowerNp,
-    lowerStart,lowerSize);
-  printf("upperElements=%lld upperNp=%d upperStart=%lld upperSize=%u\n",upperElements,upperNp,
-    upperStart,upperSize);
-#endif
-
-  setDestination(proc            ,lowerNp,lowerStart,lowerSize,lowerElements);
-  setDestination(&proc[lowerSize],upperNp,upperStart,upperSize,upperElements);
+  setDestination(proc,lowerNp,lowerStart,lowerSize,
+    lowerElements);
+  setDestination(&proc[lowerSize],upperNp,upperStart,upperSize,
+    upperElements);
   for(e=lowerSize;e<size;e++) proc[e]+=lowerNp;
 
   exaArrayTransferExt(array,proc,comm);

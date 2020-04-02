@@ -20,13 +20,17 @@ typedef struct{
 } exaSortData_private;
 typedef exaSortData_private* exaSortData;
 
-int       setDestination(exaUInt *proc,exaInt np,exaULong start,exaUInt size,exaULong nElements);
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,exaUInt offset,exaDataType type);
-void      getArrayExtrema(void *extrema_,exaSortData data,unsigned field,exaComm comm);
+int setDestination(exaUInt *proc,exaInt np,exaULong start,
+  exaUInt size,exaULong nElements);
+exaScalar getValueAsScalar(exaArray arr,exaUInt i,
+  exaUInt offset,exaDataType type);
+void getArrayExtrema(void *extrema_,exaSortData data,
+  unsigned field,exaComm comm);
 
 int exaSortLocal(exaSortData data);
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
-int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,exaBuffer buf,int keep);
+int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,
+  exaBuffer buf,int keep);
 //
 // exaBinSort
 //
@@ -43,5 +47,7 @@ typedef struct{
 } exaHyperCubeSortData_private;
 typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
 
+int initProbes(exaHyperCubeSortData data,exaComm comm);
+int updateProbeCounts(exaHyperCubeSortData data,exaComm comm);
 int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm);
 #endif // exasort-impl
