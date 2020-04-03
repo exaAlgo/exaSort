@@ -151,7 +151,10 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   exaSortLocal(data->data);
 
-  if(size==1){ exaDestroy(comm); return 0;}
+  if(size==1){
+    exaDestroy(comm);
+    return 0;
+  }
 
   initProbes(data,comm);
   updateProbeCounts(data,comm);
@@ -160,6 +163,8 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
     updateProbeCounts(data,comm);
   }
   transferElements(data,comm);
+
+  // TODO exaFree data->probes
 
   // split the communicator
   exaInt lower=(rank<size/2)?1:0;
