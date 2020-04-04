@@ -1,25 +1,47 @@
 #include <exasort-impl.h>
 
-int setDestination(exaUInt *proc,exaInt np,exaULong start,
-  exaUInt size,exaULong nElements)
+int setDestination(exaArray array,exaComm comm,exaUInt **proc_)
 {
+  exaLong out[2][1];
+  exaArrayScan(out,array,comm);
+  exaULong start=out[0][0];
+  exaULong nElements=out[1][0];
+
+  exaInt np=exaCommSize(comm);
   exaUInt partitionSize=nElements/np;
-  exaUInt nrem=nElements-np*partitionSize;
+
+  exaUInt size=exaArrayGetSize(array);
+  exaCalloc(size,proc_);
+  exaUInt *proc=*proc_;
+
   exaUInt i;
   if(partitionSize==0){
     for(i=0;i<size;i++)
-      proc[i]=i;
+      proc[i]=start+i;
     return 0;
   }
 
-  exaUInt id1=start/(partitionSize+1);
-  exaUInt id2=(start+size-nrem)/partitionSize+1;
+  exaUInt id1,id2;
 
+  exaUInt nrem=nElements-np*partitionSize;
+  exaUInt lower=nrem*(partitionSize+1);
+  if(start<=lower) id1=start/(partitionSize+1);
+  else id1=nrem+(start-lower)/partitionSize;
+
+  if((start+size)<=lower) id2=(start+size)/(partitionSize+1);
+  else id2=nrem+(start+size-lower)/partitionSize;
+
+  printf("start=%llu size=%u id1=%u id2=%u\n",start,size,id1,id2);
   i=0;
-  for(;id1<=id2;id1++){
+  while(id1<=id2 && i<size){
     exaULong s=id1*partitionSize+min(id1,nrem);
     exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
-    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
+    e=min(e,nElements);
+    while(s<=start+i && start+i<e && i<size){
+      printf("np=%d start=%llu i=%u %u %u\n",np,start,i,id1,id2);
+      proc[i++]=id1;
+    }
+    id1++;
   }
 
   return 0;
@@ -27,15 +49,16 @@ int setDestination(exaUInt *proc,exaInt np,exaULong start,
 
 int exaLoadBalance(exaArray array,exaComm comm)
 {
-  exaLong out[2][1];
-  exaArrayScan(out,array,comm);
-  exaULong start=out[0][0];
-  exaULong nElements=out[1][0];
+  exaUInt *proc;
+  setDestination(array,comm,&proc);
 
-  exaUInt size=exaArrayGetSize(array);
-  exaUInt *proc; exaCalloc(size,&proc);
-  setDestination(proc,exaCommSize(comm),start,size,nElements);
+  if(exaCommRank(comm)==0)
+    printf("Done with setDestination.\n");
+
   exaArrayTransferExt(array,proc,comm);
+  if(exaCommRank(comm)==0)
+    printf("Done with exaArrayTransferExt.\n");
+
   exaFree(proc);
 
   return 0;
@@ -117,8 +140,8 @@ void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
 exaScalar getValueAsScalar(exaArray arr,exaUInt i,
   exaUInt offset,exaDataType type)
 {
-  char* v=((char*)exaArrayGetPointer(arr)+\
-    i*exaArrayGetUnitSize(arr)+offset);
+  char* v=(char*)exaArrayGetPointer(arr)+
+    i*exaArrayGetUnitSize(arr)+offset;
 
   exaInt dataI;
   exaUInt dataUi;
@@ -167,7 +190,7 @@ void getArrayExtrema(void *extrema_,exaSortData data,
     extrema[0]=-DBL_MAX;
     extrema[1]=-DBL_MAX;
   } else {
-    extrema[0]=getValueAsScalar(arr,0,offset,t),extrema[0]*=-1;
+    extrema[0]=getValueAsScalar(arr,0     ,offset,t)*-1;
     extrema[1]=getValueAsScalar(arr,size-1,offset,t);
   }
 

@@ -11,15 +11,15 @@ int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
 
   exaInt size=exaArrayGetSize(arr);
   exaCalloc(size,proc_);
+  if(size==0) return 0;
+
   exaUInt *proc=*proc_;
 
   exaScalar extrema[2];
   getArrayExtrema((void*)extrema,data,0,comm);
   exaScalar range=extrema[1]-extrema[0];
 
-  if(size==0) return 0;
-
-  exaUInt id = 0;
+  exaUInt id=0;
   exaUInt index=0;
   do{
     exaScalar end=extrema[0]+(range/np)*(id+1);
