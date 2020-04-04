@@ -36,13 +36,17 @@ int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
 
 int exaBinSort(exaSortData data,exaComm comm)
 {
-  exaSortLocal(data); /* local sort */
+  // Local sort
+  exaSortLocal(data);
 
+  // Set destination bin
   exaUInt *proc;
-  setBin(&proc,data,comm); /* Set destination bin */
+  setBin(&proc,data,comm);
 
-  exaArrayTransferExt(data->array,proc,comm); /* Transfer to destination processor */
+  // Transfer to destination processor
+  exaArrayTransferExt(data->array,proc,comm);
   exaFree(proc);
 
-  exaSortLocal(data); /* locally sort again */
+  // Locally sort again
+  exaSortLocal(data);
 }
