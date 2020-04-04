@@ -41,16 +41,12 @@ int exaLoadBalance(exaArray array,exaComm comm)
   return 0;
 }
 
-int exaSort(exaArray array,exaDataType t,exaUInt offset,
-  exaSortAlgo algo,int loadBalance,exaComm comm)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=array,data->t[0]=t,data->offset[0]=offset;
-  data->nFields=1;
-  data->loadBalance=loadBalance;
-
+int exaSortPrivate(exaSortData data,exaComm comm){
   exaHyperCubeSortData hdata;
   exaComm comm_;
+
+  int loadBalance=data->loadBalance;
+  exaSortAlgo algo=data->algo;
 
   switch(algo){
     case exaSortAlgoBinSort:
@@ -72,7 +68,43 @@ int exaSort(exaArray array,exaDataType t,exaUInt offset,
     exaSortLocal(data);
   }
 
+  return 0;
+}
+
+int exaSort(exaArray array,exaDataType t,exaUInt offset,
+  exaSortAlgo algo,int loadBalance,exaComm comm)
+{
+  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  data->array=array;
+  data->t[0]=t,data->offset[0]=offset;
+  data->nFields=1;
+  data->algo=algo;
+  data->loadBalance=loadBalance;
+
+  exaSortPrivate(data,comm);
+
   exaFree(data);
+
+  return 0;
+}
+
+int exaSort2(exaArray array,exaDataType t1,exaUInt offset1,
+  exaDataType t2,exaUInt offset2,exaSortAlgo algo,
+  int loadBalance,exaComm comm)
+{
+  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  data->array=array;
+  data->t[0]=t1,data->offset[0]=offset1;
+  data->t[1]=t2,data->offset[1]=offset2;
+  data->nFields=2;
+  data->algo=algo;
+  data->loadBalance=loadBalance;
+
+  exaSortPrivate(data,comm);
+
+  exaFree(data);
+
+  return 0;
 }
 
 void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
