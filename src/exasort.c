@@ -31,14 +31,12 @@ int setDestination(exaArray array,exaComm comm,exaUInt **proc_)
   if((start+size)<=lower) id2=(start+size)/(partitionSize+1);
   else id2=nrem+(start+size-lower)/partitionSize;
 
-  printf("start=%llu size=%u id1=%u id2=%u\n",start,size,id1,id2);
   i=0;
   while(id1<=id2 && i<size){
     exaULong s=id1*partitionSize+min(id1,nrem);
     exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
     e=min(e,nElements);
     while(s<=start+i && start+i<e && i<size){
-      printf("np=%d start=%llu i=%u %u %u\n",np,start,i,id1,id2);
       proc[i++]=id1;
     }
     id1++;
@@ -52,12 +50,7 @@ int exaLoadBalance(exaArray array,exaComm comm)
   exaUInt *proc;
   setDestination(array,comm,&proc);
 
-  if(exaCommRank(comm)==0)
-    printf("Done with setDestination.\n");
-
   exaArrayTransferExt(array,proc,comm);
-  if(exaCommRank(comm)==0)
-    printf("Done with exaArrayTransferExt.\n");
 
   exaFree(proc);
 
