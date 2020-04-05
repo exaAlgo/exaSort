@@ -26,7 +26,8 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,
 void getArrayExtrema(void *extrema_,exaSortData data,
   unsigned field,exaComm comm);
 
-int setDestination(exaArray array,exaComm comm,exaUInt **proc);
+int setDestination(exaUInt *proc,int np,exaULong start,
+  exaUInt size,exaULong nElements);
 
 int exaSortLocal(exaSortData data);
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);

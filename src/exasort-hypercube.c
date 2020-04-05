@@ -119,8 +119,9 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 
   setDestination(proc,lowerNp,lowerStart,lowerSize,
     lowerElements);
-  setDestination(&proc[lowerSize],upperNp,upperStart,upperSize,
-    upperElements);
+  setDestination(&proc[lowerSize],upperNp,upperStart,
+    upperSize,upperElements);
+
   for(e=lowerSize;e<size;e++) proc[e]+=lowerNp;
 
   exaArrayTransferExt(array,proc,comm);

@@ -1,18 +1,9 @@
 #include <exasort-impl.h>
 
-int setDestination(exaArray array,exaComm comm,exaUInt **proc_)
+int setDestination(exaUInt *proc,int np,exaULong start,
+  exaUInt size,exaULong nElements)
 {
-  exaLong out[2][1];
-  exaArrayScan(out,array,comm);
-  exaULong start=out[0][0];
-  exaULong nElements=out[1][0];
-
-  exaInt np=exaCommSize(comm);
   exaUInt partitionSize=nElements/np;
-
-  exaUInt size=exaArrayGetSize(array);
-  exaCalloc(size,proc_);
-  exaUInt *proc=*proc_;
 
   exaUInt i;
   if(partitionSize==0){
@@ -47,8 +38,17 @@ int setDestination(exaArray array,exaComm comm,exaUInt **proc_)
 
 int exaLoadBalance(exaArray array,exaComm comm)
 {
-  exaUInt *proc;
-  setDestination(array,comm,&proc);
+  exaLong out[2][1];
+  exaArrayScan(out,array,comm);
+  exaULong start=out[0][0];
+  exaULong nElements=out[1][0];
+
+  exaInt np=exaCommSize(comm);
+  exaUInt size=exaArrayGetSize(array);
+
+  exaUInt *proc; exaCalloc(size,&proc);
+
+  setDestination(proc,np,start,size,nElements);
 
   exaArrayTransferExt(array,proc,comm);
 
