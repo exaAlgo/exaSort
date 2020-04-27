@@ -59,7 +59,6 @@ int exaLoadBalance(exaArray array,exaComm comm)
 
 int exaSortPrivate(exaSortData data,exaComm comm){
   exaHyperCubeSortData hdata;
-  exaComm comm_;
 
   int loadBalance=data->loadBalance;
   exaSortAlgo algo=data->algo;
@@ -70,9 +69,8 @@ int exaSortPrivate(exaSortData data,exaComm comm){
       break;
     case exaSortAlgoHyperCubeSort:
       exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
-      exaCommDup(&comm_,comm);
       hdata->data=data;
-      exaHyperCubeSort(hdata,comm_);
+      exaHyperCubeSort(hdata,comm);
       exaFree(hdata);
       break;
     default:
