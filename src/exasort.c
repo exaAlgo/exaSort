@@ -38,7 +38,7 @@ int setDestination(exaUInt *proc,int np,exaULong start,
 
 int exaLoadBalance(exaArray array,exaComm comm)
 {
-  exaLong out[2][1];
+  slong out[2][1];
   exaArrayScan(out,array,comm);
   exaULong start=out[0][0];
   exaULong nElements=out[1][0];
@@ -121,9 +121,9 @@ int exaSort2(exaArray array,exaDataType t1,exaUInt offset1,
   return 0;
 }
 
-void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
+void exaArrayScan(slong out[2][1],exaArray array,exaComm comm)
 {
-  exaLong buf[2][1],in[1];
+  slong buf[2][1],in[1];
   in[0]=exaArrayGetSize(array);
   exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
 }
@@ -136,7 +136,7 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,
 
   exaInt dataI;
   exaUInt dataUi;
-  exaLong dataL;
+  slong dataL;
   exaULong dataUl;
   exaScalar data;
 

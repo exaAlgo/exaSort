@@ -3,7 +3,7 @@
 
 typedef struct{
   exaScalar data1;
-  exaLong data2;
+  slong data2;
   exaUInt proc;
 } Data;
 

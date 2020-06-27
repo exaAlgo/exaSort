@@ -53,7 +53,7 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
-int reachedThreshold(exaLong nElements,exaHyperCubeSortData data,
+int reachedThreshold(slong nElements,exaHyperCubeSortData data,
   exaComm c)
 {
   int converged=1;
@@ -65,13 +65,13 @@ int reachedThreshold(exaLong nElements,exaHyperCubeSortData data,
   return converged;
 }
 
-int updateProbes(exaLong nElements,exaHyperCubeSortData data,
+int updateProbes(slong nElements,exaHyperCubeSortData data,
   exaComm comm)
 {
   exaULong *probeCounts=data->probeCounts;
   exaScalar *probes=data->probes;
 
-  exaLong expected=nElements/2;
+  slong expected=nElements/2;
   if(abs(data->probeCounts[1]-expected)<data->threshold)
     return 0;
 
@@ -141,10 +141,10 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   exaDataType t =input->t[0];
   exaUInt offset=input->offset[0];
 
-  exaLong out[2][1];
+  slong out[2][1];
   exaArrayScan(out,array,comm);
-  exaLong start=out[0][0];
-  exaLong nElements=out[1][0];
+  slong start=out[0][0];
+  slong nElements=out[1][0];
 
   exaUInt threshold=(nElements/(10*size));
   if(threshold<2) threshold=2;
