@@ -1,9 +1,9 @@
 #include <exasort-impl.h>
 
-int setDestination(uint *proc,int np,ulong start,
-  uint size,ulong nElements)
+int set_dest(uint *proc,int np,ulong start,
+  uint size,ulong nelem)
 {
-  uint partitionSize=nElements/np;
+  uint partitionSize=nelem/np;
 
   uint i;
   if(partitionSize==0){
@@ -14,7 +14,7 @@ int setDestination(uint *proc,int np,ulong start,
 
   uint id1,id2;
 
-  uint nrem=nElements-np*partitionSize;
+  uint nrem=nelem-np*partitionSize;
   uint lower=nrem*(partitionSize+1);
   if(start<=lower) id1=start/(partitionSize+1);
   else id1=nrem+(start-lower)/partitionSize;
@@ -26,7 +26,7 @@ int setDestination(uint *proc,int np,ulong start,
   while(id1<=id2 && i<size){
     ulong s=id1*partitionSize+min(id1,nrem);
     ulong e=(id1+1)*partitionSize+min(id1+1,nrem);
-    e=min(e,nElements);
+    e=min(e,nelem);
     while(s<=start+i && start+i<e && i<size){
       proc[i++]=id1;
     }
@@ -41,14 +41,14 @@ int exaLoadBalance(exaArray array,exaComm comm)
   slong out[2][1];
   exaArrayScan(out,array,comm);
   ulong start=out[0][0];
-  ulong nElements=out[1][0];
+  ulong nelem=out[1][0];
 
   sint np=exaCommSize(comm);
   uint size=exaArrayGetSize(array);
 
   uint *proc; exaCalloc(size,&proc);
 
-  setDestination(proc,np,start,size,nElements);
+  set_dest(proc,np,start,size,nelem);
 
   exaArrayTransferExt(array,proc,comm);
 

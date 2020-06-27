@@ -53,25 +53,25 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   return 0;
 }
 
-int reachedThreshold(slong nElements,exaHyperCubeSortData data,
+int reachedThreshold(slong nelem,exaHyperCubeSortData data,
   exaComm c)
 {
   int converged=1;
 
-  ulong expected=nElements/2;
+  ulong expected=nelem/2;
   if(abs(data->probeCounts[1]-expected)>data->threshold)
     converged=0;
 
   return converged;
 }
 
-int updateProbes(slong nElements,exaHyperCubeSortData data,
+int updateProbes(slong nelem,exaHyperCubeSortData data,
   exaComm comm)
 {
   ulong *probeCounts=data->probeCounts;
   exaScalar *probes=data->probes;
 
-  slong expected=nElements/2;
+  slong expected=nelem/2;
   if(abs(data->probeCounts[1]-expected)<data->threshold)
     return 0;
 
@@ -117,10 +117,8 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
   uint *proc;
   exaCalloc(size,&proc);
 
-  setDestination(proc,lowerNp,lowerStart,lowerSize,
-    lowerElements);
-  setDestination(&proc[lowerSize],upperNp,upperStart,
-    upperSize,upperElements);
+  set_dest(proc,lowerNp,lowerStart,lowerSize,lowerElements);
+  set_dest(&proc[lowerSize],upperNp,upperStart,upperSize,upperElements);
 
   for(e=lowerSize;e<size;e++) proc[e]+=lowerNp;
 
@@ -144,9 +142,9 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   slong out[2][1];
   exaArrayScan(out,array,comm);
   slong start=out[0][0];
-  slong nElements=out[1][0];
+  slong nelem=out[1][0];
 
-  uint threshold=(nElements/(10*size));
+  uint threshold=(nelem/(10*size));
   if(threshold<2) threshold=2;
   data->threshold=threshold;
 
@@ -159,8 +157,8 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   initProbes(data,comm);
   updateProbeCounts(data,comm);
-  while(!reachedThreshold(nElements,data,comm)){
-    updateProbes(nElements,data,comm);
+  while(!reachedThreshold(nelem,data,comm)){
+    updateProbes(nelem,data,comm);
     updateProbeCounts(data,comm);
   }
   transferElements(data,comm);
