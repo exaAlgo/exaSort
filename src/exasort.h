@@ -8,18 +8,18 @@ typedef enum{
   exaSortAlgoHyperCubeSort=1
 } exaSortAlgo;
 
-int exaSortArray (exaArray arr,exaDataType t ,exaUInt offset);
-int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2);
-int exaSortArray3(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2,exaDataType t3,exaUInt offset3);
+int exaSortArray (exaArray arr,exaDataType t ,uint offset);
+int exaSortArray2(exaArray arr,exaDataType t1,uint offset1,
+  exaDataType t2,uint offset2);
+int exaSortArray3(exaArray arr,exaDataType t1,uint offset1,
+  exaDataType t2,uint offset2,exaDataType t3,uint offset3);
 
 void exaArrayScan(slong out[2][1],exaArray array,exaComm comm);
 
-int exaSort(exaArray array,exaDataType t,exaUInt offset,
+int exaSort(exaArray array,exaDataType t,uint offset,
   exaSortAlgo algo,int loadBalance,exaComm comm);
-int exaSort2(exaArray array,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2,exaSortAlgo algo,
+int exaSort2(exaArray array,exaDataType t1,uint offset1,
+  exaDataType t2,uint offset2,exaSortAlgo algo,
   int loadBalance,exaComm comm);
 
 int exaLoadBalance(exaArray array,exaComm comm);

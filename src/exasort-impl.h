@@ -15,23 +15,23 @@ typedef struct{
   int nFields;
   exaArray array;
   exaDataType t[3];
-  exaUInt offset[3];
+  uint offset[3];
   int loadBalance;
   exaSortAlgo algo;
 } exaSortData_private;
 typedef exaSortData_private* exaSortData;
 
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,
-  exaUInt offset,exaDataType type);
+exaScalar getValueAsScalar(exaArray arr,uint i,
+  uint offset,exaDataType type);
 void getArrayExtrema(void *extrema_,exaSortData data,
   unsigned field,exaComm comm);
 
-int setDestination(exaUInt *proc,int np,exaULong start,
-  exaUInt size,exaULong nElements);
+int setDestination(uint *proc,int np,ulong start,
+  uint size,ulong nElements);
 
 int exaSortLocal(exaSortData data);
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
-int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,
+int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
   exaBuffer buf,int keep);
 //
 // exaBinSort
@@ -44,8 +44,8 @@ typedef struct{
   exaSortData data;
   int nProbes;
   exaScalar *probes;
-  exaULong *probeCounts;
-  exaUInt threshold;
+  ulong *probeCounts;
+  uint threshold;
 } exaHyperCubeSortData_private;
 typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
 

@@ -4,8 +4,8 @@
 #include <exasort.h>
 
 typedef struct {
-  exaInt proc;
-  exaInt key[2];
+  sint proc;
+  sint key[2];
   exaScalar value;
 } kvPair;
 

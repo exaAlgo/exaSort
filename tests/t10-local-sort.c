@@ -4,7 +4,7 @@
 typedef struct{
   exaScalar data1;
   slong data2;
-  exaUInt proc;
+  uint proc;
 } Data;
 
 #define N 5
@@ -20,8 +20,8 @@ int main(int argc,char *argv[]){
 
   exaHandle h;
   exaInit(&h,MPI_COMM_WORLD,argv[1]);
-  exaInt rank=exaRank(h);
-  exaInt Size=exaSize(h);
+  sint rank=exaRank(h);
+  sint Size=exaSize(h);
 
   exaArray arr;
   exaArrayInit(&arr,Data,1);

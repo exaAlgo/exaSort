@@ -28,18 +28,18 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
 {
   exaSortData input=data->data;
   exaArray array=input->array;
-  exaUInt offset=input->offset[0];
+  uint offset=input->offset[0];
   exaDataType t =input->t[0];
 
-  exaInt size   =exaArrayGetSize(array);
-  exaInt nProbes=data->nProbes;
+  sint size   =exaArrayGetSize(array);
+  sint nProbes=data->nProbes;
 
-  exaUInt i;
+  uint i;
   for(i=0;i<nProbes;i++){
     data->probeCounts[i]=0;
   }
 
-  exaUInt e;
+  uint e;
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     for(i=0;i<nProbes;i++)
@@ -58,7 +58,7 @@ int reachedThreshold(slong nElements,exaHyperCubeSortData data,
 {
   int converged=1;
 
-  exaULong expected=nElements/2;
+  ulong expected=nElements/2;
   if(abs(data->probeCounts[1]-expected)>data->threshold)
     converged=0;
 
@@ -68,7 +68,7 @@ int reachedThreshold(slong nElements,exaHyperCubeSortData data,
 int updateProbes(slong nElements,exaHyperCubeSortData data,
   exaComm comm)
 {
-  exaULong *probeCounts=data->probeCounts;
+  ulong *probeCounts=data->probeCounts;
   exaScalar *probes=data->probes;
 
   slong expected=nElements/2;
@@ -87,12 +87,12 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 {
   exaSortData input=data->data;
   exaArray array=input->array;
-  exaUInt offset=input->offset[0];
+  uint offset=input->offset[0];
   exaDataType t =input->t[0];
 
-  exaInt size=exaArrayGetSize(array);
+  sint size=exaArrayGetSize(array);
 
-  exaUInt e,lowerSize=0,upperSize=0;
+  uint e,lowerSize=0,upperSize=0;
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     if(val_e<data->probes[1] ||
@@ -101,20 +101,20 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
     else upperSize++;
   }
 
-  exaULong out[2][2],in[2],buf[2][2];
+  ulong out[2][2],in[2],buf[2][2];
   in[0]=lowerSize,in[1]=upperSize;
   exaCommScan(comm,out,in,buf,2,exaULong_t,exaAddOp);
 
-  exaULong lowerStart=out[0][0];
-  exaULong upperStart=out[0][1];
-  exaULong lowerElements=out[1][0];
-  exaULong upperElements=out[1][1];
+  ulong lowerStart=out[0][0];
+  ulong upperStart=out[0][1];
+  ulong lowerElements=out[1][0];
+  ulong upperElements=out[1][1];
 
-  exaUInt np=exaCommSize(comm);
-  exaUInt lowerNp=np/2;
-  exaUInt upperNp=np-lowerNp;
+  uint np=exaCommSize(comm);
+  uint lowerNp=np/2;
+  uint upperNp=np-lowerNp;
 
-  exaUInt *proc;
+  uint *proc;
   exaCalloc(size,&proc);
 
   setDestination(proc,lowerNp,lowerStart,lowerSize,
@@ -133,20 +133,20 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 
 int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 {
-  exaInt size=exaCommSize(comm);
-  exaInt rank=exaCommRank(comm);
+  sint size=exaCommSize(comm);
+  sint rank=exaCommRank(comm);
 
   exaSortData input=data->data;
   exaArray array=input->array;
   exaDataType t =input->t[0];
-  exaUInt offset=input->offset[0];
+  uint offset=input->offset[0];
 
   slong out[2][1];
   exaArrayScan(out,array,comm);
   slong start=out[0][0];
   slong nElements=out[1][0];
 
-  exaUInt threshold=(nElements/(10*size));
+  uint threshold=(nElements/(10*size));
   if(threshold<2) threshold=2;
   data->threshold=threshold;
 
@@ -168,7 +168,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   // TODO exaFree data->probes
 
   // split the communicator
-  exaInt lower=(rank<size/2)?1:0;
+  sint lower=(rank<size/2)?1:0;
   exaComm newComm;
   exaCommSplit(comm,lower,rank,&newComm);
 

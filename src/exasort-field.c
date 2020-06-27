@@ -1,7 +1,7 @@
 #include <exasort-impl.h>
 
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf){
-  exaUInt nUnits =exaArrayGetSize(arr);
+  uint nUnits =exaArrayGetSize(arr);
   size_t unitSize=exaArrayGetUnitSize(arr);
   size_t align   =exaArrayGetAlign(arr);
   void *ptr      =exaArrayGetPointer(arr);
@@ -11,10 +11,10 @@ int exaSortPermuteBuf(exaArray arr,exaBuffer buf){
   return 0;
 }
 
-int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,
+int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
   exaBuffer buf,int keep)
 {
-  exaUInt nUnits   =exaArrayGetSize(arr);
+  uint nUnits   =exaArrayGetSize(arr);
   unsigned unitSize=(unsigned)exaArrayGetUnitSize(arr);
   void *ptr        =exaArrayGetPointer(arr);
 

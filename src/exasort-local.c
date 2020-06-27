@@ -16,7 +16,7 @@ int exaSortLocal(exaSortData data)
   exaFree(buf);
 }
 
-int exaSortArray(exaArray arr,exaDataType t,exaUInt offset)
+int exaSortArray(exaArray arr,exaDataType t,uint offset)
 {
   exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=1;
@@ -25,8 +25,8 @@ int exaSortArray(exaArray arr,exaDataType t,exaUInt offset)
   exaFree(data);
 }
 
-int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2)
+int exaSortArray2(exaArray arr,exaDataType t1,uint offset1,
+  exaDataType t2,uint offset2)
 {
   exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=2;
@@ -36,8 +36,8 @@ int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,
   exaFree(data);
 }
 
-int exaSortArray3(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2,exaDataType t3,exaUInt offset3)
+int exaSortArray3(exaArray arr,exaDataType t1,uint offset1,
+  exaDataType t2,uint offset2,exaDataType t3,uint offset3)
 {
   exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=3;
