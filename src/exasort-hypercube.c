@@ -1,4 +1,5 @@
 #include <exasort-impl.h>
+#include <exa-memory.h>
 
 int initProbes(exaHyperCubeSortData data,exaComm comm)
 {

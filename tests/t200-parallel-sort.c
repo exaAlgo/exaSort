@@ -10,31 +10,12 @@ typedef struct{
 
 #define N 10
 
-int main(int argc,char *argv[]){
-  MPI_Init(&argc,&argv);
-
-  exaHandle h;
-  exaInit(&h,MPI_COMM_WORLD,"/host");
-
-  srand(time(0));
-
+void check(exaArray arr,exaHandle h){
   uint size=exaSize(h);
   uint rank=exaRank(h);
 
-  exaArray arr; exaArrayInit(&arr,Data,N);
-
-  int i; Data d;
-  for(i=0; i<N/2; i++){
-      d.dl=rand()%100,d.ds=(rand()%100)/100.0,exaArrayAppend(arr,&d);
-      d.dl=rand()%100,exaArrayAppend(arr,&d);
-  }
-
-  exaSort2(arr,exaScalar_t,offsetof(Data,ds),
-    exaLong_t,offsetof(Data,dl),
-    exaSortAlgoBinSort,1,exaGetComm(h));
-
   Data *ptr=exaArrayGetPointer(arr);
-  uint n=exaArrayGetSize(arr);
+  uint n=exaArrayGetSize(arr),i;
   for(i=0; i<n-1; i++){
     assert(ptr[i].ds<=ptr[i+1].ds && "Field ds is not sorted");
     if(i%2==0)
@@ -68,6 +49,41 @@ int main(int argc,char *argv[]){
   crystal_free(&cr);
   comm_free(&c);
   array_free(&a);
+}
+
+int main(int argc,char *argv[]){
+  MPI_Init(&argc,&argv);
+
+  exaHandle h;
+  exaInit(&h,MPI_COMM_WORLD,"/host");
+
+  srand(time(0));
+
+  exaArray arr; exaArrayInit(&arr,Data,N);
+
+  int i; Data d;
+  for(i=0; i<N/2; i++){
+      d.dl=rand()%100,d.ds=(rand()%100)/100.0,exaArrayAppend(arr,&d);
+      d.dl=rand()%100,exaArrayAppend(arr,&d);
+  }
+
+#if 0
+  exaSort2(arr,exaScalar_t,offsetof(Data,ds),
+    exaLong_t,offsetof(Data,dl),
+    exaSortAlgoBinSort,1,exaGetComm(h));
+  check(arr,h);
+
+  exaArraySetSize(arr,0);
+  for(i=0; i<N/2; i++){
+      d.dl=rand()%100,d.ds=(rand()%100)/100.0,exaArrayAppend(arr,&d);
+      d.dl=rand()%100,exaArrayAppend(arr,&d);
+  }
+#endif
+
+  exaSort2(arr,exaScalar_t,offsetof(Data,ds),
+    exaLong_t,offsetof(Data,dl),
+    exaSortAlgoHyperCubeSort,1,exaGetComm(h));
+  check(arr,h);
 
   exaDestroy(arr);
   exaFinalize(h);
