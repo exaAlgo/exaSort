@@ -36,17 +36,13 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
   sint nProbes=data->nProbes;
 
   uint i;
-  for(i=0;i<nProbes;i++){
-    data->probeCounts[i]=0;
-  }
+  for(i=0;i<nProbes;i++) data->probeCounts[i]=0;
 
   uint e;
   for(e=0;e<size;e++){
     exaScalar val_e=getValueAsScalar(array,e,offset,t);
     for(i=0;i<nProbes;i++)
-      if(val_e<data->probes[i] ||
-         fabs(val_e-data->probes[i])<EXA_TOL)
-        data->probeCounts[i]++;
+      if(val_e<data->probes[i]) data->probeCounts[i]++;
   }
 
   exaCommGop(comm,data->probeCounts,nProbes,exaULong_t,exaAddOp);
@@ -150,15 +146,13 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   data->threshold=threshold;
 
   exaSortLocal(data->data);
-
-  if(size==1){
-    exaDestroy(comm);
-    return 0;
-  }
+  if(size==1) return 0;
 
   initProbes(data,comm);
   updateProbeCounts(data,comm);
-  while(!reachedThreshold(nelem,data,comm)){
+
+  int maxIter=log2((data->probes[2]-data->probes[0])/EXA_TOL),iter=0;
+  while(!reachedThreshold(nelem,data,comm) && iter++<maxIter){
     updateProbes(nelem,data,comm);
     updateProbeCounts(data,comm);
   }
@@ -167,8 +161,8 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   // TODO exaFree data->probes
 
   // split the communicator
-  sint lower=(rank<size/2)?1:0;
   exaComm newComm;
+  sint lower=(rank<size/2)?1:0;
   exaCommSplit(comm,lower,rank,&newComm);
 
   int loadBalance=input->loadBalance;
@@ -176,7 +170,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 
   exaHyperCubeSort(data,newComm);
 
-  exaCommDestroy(newComm);
+  exaDestroy(newComm);
 
   return 0;
 }

@@ -67,7 +67,6 @@ int main(int argc,char *argv[]){
       d.dl=rand()%100,exaArrayAppend(arr,&d);
   }
 
-#if 0
   exaSort2(arr,exaScalar_t,offsetof(Data,ds),
     exaLong_t,offsetof(Data,dl),
     exaSortAlgoBinSort,1,exaGetComm(h));
@@ -78,7 +77,6 @@ int main(int argc,char *argv[]){
       d.dl=rand()%100,d.ds=(rand()%100)/100.0,exaArrayAppend(arr,&d);
       d.dl=rand()%100,exaArrayAppend(arr,&d);
   }
-#endif
 
   exaSort2(arr,exaScalar_t,offsetof(Data,ds),
     exaLong_t,offsetof(Data,dl),

@@ -62,6 +62,8 @@ int exaSortPrivate(exaSortData data,exaComm comm){
   int loadBalance=data->loadBalance;
   exaSortAlgo algo=data->algo;
 
+  exaComm c; exaCommDup(&c,comm);
+
   switch(algo){
     case exaSortAlgoBinSort:
       exaBinSort(data,comm);
@@ -69,7 +71,7 @@ int exaSortPrivate(exaSortData data,exaComm comm){
     case exaSortAlgoHyperCubeSort:
       exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
       hdata->data=data;
-      exaHyperCubeSort(hdata,comm);
+      exaHyperCubeSort(hdata,c);
       exaFree(hdata);
       break;
     default:
@@ -77,9 +79,11 @@ int exaSortPrivate(exaSortData data,exaComm comm){
   }
 
   if(loadBalance){
-    exaLoadBalance(data->array,comm);
+    exaLoadBalance(data->array,c);
     exaSortLocal(data);
   }
+
+  exaDestroy(c);
 
   return 0;
 }
