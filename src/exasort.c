@@ -1,31 +1,30 @@
 #include <exasort-impl.h>
 
-int set_dest(uint *proc,int np,ulong start,
-  uint size,ulong nelem)
+int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
 {
-  uint partitionSize=nelem/np;
+  uint psize=nelem/np;
 
   uint i;
-  if(partitionSize==0){
-    for(i=0;i<size;i++)
-      proc[i]=start+i;
+  if(psize==0){
+    for(i=0;i<size;i++) proc[i]=start+i;
     return 0;
   }
 
+  uint nrem =nelem-np*psize;
+  uint lower=nrem*(psize+1);
+
   uint id1,id2;
+  if(start<=lower) id1=start/(psize+1);
+  else id1=nrem+(start-lower)/psize;
 
-  uint nrem=nelem-np*partitionSize;
-  uint lower=nrem*(partitionSize+1);
-  if(start<=lower) id1=start/(partitionSize+1);
-  else id1=nrem+(start-lower)/partitionSize;
-
-  if((start+size)<=lower) id2=(start+size)/(partitionSize+1);
-  else id2=nrem+(start+size-lower)/partitionSize;
+  // This is not necessary
+  if((start+size)<=lower) id2=(start+size)/(psize+1);
+  else id2=nrem+(start+size-lower)/psize;
 
   i=0;
   while(id1<=id2 && i<size){
-    ulong s=id1*partitionSize+min(id1,nrem);
-    ulong e=(id1+1)*partitionSize+min(id1+1,nrem);
+    ulong s=id1*psize+min(id1,nrem);
+    ulong e=(id1+1)*psize+min(id1+1,nrem);
     e=min(e,nelem);
     while(s<=start+i && start+i<e && i<size){
       proc[i++]=id1;
@@ -43,7 +42,7 @@ int exaLoadBalance(exaArray array,exaComm comm)
   ulong start=out[0][0];
   ulong nelem=out[1][0];
 
-  sint np=exaCommSize(comm);
+  uint np=exaCommSize(comm);
   uint size=exaArrayGetSize(array);
 
   uint *proc; exaCalloc(size,&proc);
