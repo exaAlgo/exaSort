@@ -1,16 +1,5 @@
 #include <exasort-impl.h>
 
-int exaSortPermuteBuf(exaArray arr,exaBuffer buf){
-  uint nUnits =exaArrayGetSize(arr);
-  size_t unitSize=exaArrayGetUnitSize(arr);
-  size_t align   =exaArrayGetAlign(arr);
-  void *ptr      =exaArrayGetPointer(arr);
-
-  sarray_permute_buf_(align,unitSize,ptr,nUnits,&buf->buf);
-
-  return 0;
-}
-
 int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
   exaBuffer buf,int keep)
 {

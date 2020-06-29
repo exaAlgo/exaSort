@@ -88,9 +88,11 @@ int exaSort(exaArray array,exaDataType t,uint offset,
   exaSortAlgo algo,int balance,exaComm comm)
 {
   sort_data_private sd;
+
   sd.nfields=1;
   sd.array=array;
   sd.unit_size=exaArrayGetUnitSize(array);
+  sd.align=exaArrayGetAlign(array);
 
   sd.t[0]=t,sd.offset[0]=offset;
 
@@ -106,17 +108,20 @@ int exaSort2(exaArray array,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2,exaSortAlgo algo,
   int balance,exaComm comm)
 {
-  sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=array;
-  data->t[0]=t1,data->offset[0]=offset1;
-  data->t[1]=t2,data->offset[1]=offset2;
-  data->nfields=2;
-  data->algo=algo;
-  data->balance=balance;
+  sort_data_private sd;
 
-  exaSortPrivate(data,comm);
+  sd.nfields=2;
+  sd.array=array;
+  sd.unit_size=exaArrayGetUnitSize(array);
+  sd.align=exaArrayGetAlign(array);
 
-  exaFree(data);
+  sd.t[0]=t1,sd.offset[0]=offset1;
+  sd.t[1]=t2,sd.offset[1]=offset2;
+
+  sd.algo=algo;
+  sd.balance=balance;
+
+  exaSortPrivate(&sd,comm);
 
   return 0;
 }

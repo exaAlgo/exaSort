@@ -15,6 +15,7 @@ typedef struct{
   int nfields;
   exaArray array;
   size_t unit_size;
+  size_t align;
 
   exaDataType t[3];
   uint offset[3];
@@ -35,7 +36,6 @@ int load_balance(struct array *a,size_t size,struct comm *c,
     struct crystal *cr);
 
 int exaSortLocal(sort_data data);
-int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
 int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
   exaBuffer buf,int keep);
 //
