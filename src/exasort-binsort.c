@@ -1,7 +1,7 @@
 #include <exasort-impl.h>
 
 /* assumes array is locally sorted */
-int setBin(uint **proc_,exaSortData data,exaComm comm)
+int setBin(uint **proc_,sort_data data,exaComm comm)
 {
   exaArray arr  =data->array;
   exaDataType t =data->t[0];
@@ -34,7 +34,7 @@ int setBin(uint **proc_,exaSortData data,exaComm comm)
     proc[index]=np-1;
 }
 
-int exaBinSort(exaSortData data,exaComm comm)
+int exaBinSort(sort_data data,exaComm comm)
 {
   // Local sort
   exaSortLocal(data);

@@ -1,6 +1,6 @@
 #include <exasort-impl.h>
 
-int exaSortLocal(exaSortData data)
+int exaSortLocal(sort_data data)
 {
   exaBuffer buf; exaBufferCreate(&buf,0);
 
@@ -18,7 +18,7 @@ int exaSortLocal(exaSortData data)
 
 int exaSortArray(exaArray arr,exaDataType t,uint offset)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=1;
   data->t[0]=t,data->offset[0]=offset;
   exaSortLocal(data);
@@ -28,7 +28,7 @@ int exaSortArray(exaArray arr,exaDataType t,uint offset)
 int exaSortArray2(exaArray arr,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=2;
   data->t[0]=t1,data->offset[0]=offset1;
   data->t[1]=t2,data->offset[1]=offset2;
@@ -39,7 +39,7 @@ int exaSortArray2(exaArray arr,exaDataType t1,uint offset1,
 int exaSortArray3(exaArray arr,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2,exaDataType t3,uint offset3)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=arr,data->nFields=3;
   data->t[0]=t1,data->offset[0]=offset1;
   data->t[1]=t2,data->offset[1]=offset2;

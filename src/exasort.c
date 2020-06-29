@@ -48,14 +48,14 @@ int load_balance(struct array *a,size_t size,struct comm *c,
   return 0;
 }
 
-int exaSortPrivate(exaSortData data,exaComm comm){
+int exaSortPrivate(sort_data data,exaComm comm){
   exaHyperCubeSortData hdata;
 
   int loadBalance =data->loadBalance;
   exaSortAlgo algo=data->algo;
   exaComm dup; exaCommDup(&dup,comm);
 
-  struct array *a =&(data->array->arr);
+  struct array *a =&data->array->arr;
   size_t usize    =exaArrayGetUnitSize(data->array);
   struct crystal cr; crystal_init(&cr,&comm->gsComm);
 
@@ -87,7 +87,7 @@ int exaSortPrivate(exaSortData data,exaComm comm){
 int exaSort(exaArray array,exaDataType t,uint offset,
   exaSortAlgo algo,int loadBalance,exaComm comm)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  sort_data data; exaMalloc(1,(void**)&data);
   data->array=array;
   data->t[0]=t,data->offset[0]=offset;
   data->nFields=1;
@@ -105,7 +105,7 @@ int exaSort2(exaArray array,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2,exaSortAlgo algo,
   int loadBalance,exaComm comm)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
+  sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=array;
   data->t[0]=t1,data->offset[0]=offset1;
   data->t[1]=t2,data->offset[1]=offset2;
@@ -166,7 +166,7 @@ exaScalar getValueAsScalar(exaArray arr,uint i,
   return data;
 }
 
-void getArrayExtrema(void *extrema_,exaSortData data,
+void getArrayExtrema(void *extrema_,sort_data data,
   unsigned field,exaComm comm)
 {
   exaArray arr  =data->array;

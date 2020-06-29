@@ -4,7 +4,7 @@
 int initProbes(exaHyperCubeSortData data,exaComm comm)
 {
   /* get input data */
-  exaSortData input=data->data;
+  sort_data input=data->data;
 
   /* Allocate space for probes and counts */
   int nProbes=data->nProbes=3;
@@ -27,7 +27,7 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
 
 int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
 {
-  exaSortData input=data->data;
+  sort_data input=data->data;
   exaArray array=input->array;
   uint offset=input->offset[0];
   exaDataType t =input->t[0];
@@ -82,7 +82,7 @@ int updateProbes(slong nelem,exaHyperCubeSortData data,
 
 int transferElements(exaHyperCubeSortData data,exaComm comm)
 {
-  exaSortData input=data->data;
+  sort_data input=data->data;
   exaArray array=input->array;
   uint offset=input->offset[0];
   exaDataType t =input->t[0];
@@ -131,7 +131,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   sint size=exaCommSize(comm);
   sint rank=exaCommRank(comm);
 
-  exaSortData input=data->data;
+  sort_data input=data->data;
   exaArray array=input->array;
   exaDataType t =input->t[0];
   uint offset=input->offset[0];
