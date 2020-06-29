@@ -19,7 +19,7 @@ void check(exaArray arr,exaHandle h){
   for(i=0; i<n-1; i++){
     assert(ptr[i].ds<=ptr[i+1].ds && "Field ds is not sorted");
     if(i%2==0)
-     assert(ptr[i].dl<=ptr[i+1].dl && "Field dl is not sorted");
+      assert(ptr[i].dl<=ptr[i+1].dl && "Field dl is not sorted");
   }
 
   uint root=0;

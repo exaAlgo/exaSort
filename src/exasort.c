@@ -2,9 +2,7 @@
 
 int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
 {
-  uint psize=nelem/np;
-
-  uint i;
+  uint psize=nelem/np,i;
   if(psize==0){
     for(i=0;i<size;i++) proc[i]=start+i;
     return 0;
@@ -14,11 +12,10 @@ int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
   uint lower=nrem*(psize+1);
 
   uint id1,id2;
-  if(start<=lower) id1=start/(psize+1);
+  if(start<lower) id1=start/(psize+1);
   else id1=nrem+(start-lower)/psize;
 
-  // This is not necessary
-  if((start+size)<=lower) id2=(start+size)/(psize+1);
+  if((start+size)<lower) id2=(start+size)/(psize+1);
   else id2=nrem+(start+size-lower)/psize;
 
   i=0;
@@ -26,9 +23,7 @@ int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
     ulong s=id1*psize+min(id1,nrem);
     ulong e=(id1+1)*psize+min(id1+1,nrem);
     e=min(e,nelem);
-    while(s<=start+i && start+i<e && i<size){
-      proc[i++]=id1;
-    }
+    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
     id1++;
   }
 
