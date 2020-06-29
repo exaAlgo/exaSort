@@ -51,7 +51,7 @@ int load_balance(struct array *a,size_t size,struct comm *c,
 int exaSortPrivate(sort_data data,exaComm comm){
   exaHyperCubeSortData hdata;
 
-  int loadBalance =data->loadBalance;
+  int balance =data->balance;
   exaSortAlgo algo=data->algo;
   exaComm dup; exaCommDup(&dup,comm);
 
@@ -73,7 +73,7 @@ int exaSortPrivate(sort_data data,exaComm comm){
       break;
   }
 
-  if(loadBalance){
+  if(balance){
     load_balance(a,usize,&comm->gsComm,&cr);
     exaSortLocal(data);
   }
@@ -85,33 +85,34 @@ int exaSortPrivate(sort_data data,exaComm comm){
 }
 
 int exaSort(exaArray array,exaDataType t,uint offset,
-  exaSortAlgo algo,int loadBalance,exaComm comm)
+  exaSortAlgo algo,int balance,exaComm comm)
 {
-  sort_data data; exaMalloc(1,(void**)&data);
-  data->array=array;
-  data->t[0]=t,data->offset[0]=offset;
-  data->nFields=1;
-  data->algo=algo;
-  data->loadBalance=loadBalance;
+  sort_data_private sd;
+  sd.nfields=1;
+  sd.array=array;
+  sd.unit_size=exaArrayGetUnitSize(array);
 
-  exaSortPrivate(data,comm);
+  sd.t[0]=t,sd.offset[0]=offset;
 
-  exaFree(data);
+  sd.balance=balance;
+  sd.algo=algo;
+
+  exaSortPrivate(&sd,comm);
 
   return 0;
 }
 
 int exaSort2(exaArray array,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2,exaSortAlgo algo,
-  int loadBalance,exaComm comm)
+  int balance,exaComm comm)
 {
   sort_data data; exaMallocArray(1,sizeof(*data),(void**)&data);
   data->array=array;
   data->t[0]=t1,data->offset[0]=offset1;
   data->t[1]=t2,data->offset[1]=offset2;
-  data->nFields=2;
+  data->nfields=2;
   data->algo=algo;
-  data->loadBalance=loadBalance;
+  data->balance=balance;
 
   exaSortPrivate(data,comm);
 

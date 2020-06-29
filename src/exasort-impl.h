@@ -12,13 +12,17 @@
 // exaSort: general functions
 //
 typedef struct{
-  int nFields;
+  int nfields;
   exaArray array;
+  size_t unit_size;
+
   exaDataType t[3];
   uint offset[3];
-  int loadBalance;
+
+  int balance;
   exaSortAlgo algo;
 } sort_data_private;
+
 typedef sort_data_private* sort_data;
 
 exaScalar getValueAsScalar(exaArray arr,uint i,

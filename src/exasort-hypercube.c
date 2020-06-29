@@ -166,8 +166,8 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   exaCommSplit(comm,lower,rank,&newComm);
 
   // FIXME
-  //int loadBalance=input->loadBalance;
-  //if(loadBalance) exaLoadBalance(input->array,newComm);
+  //int balance=input->balance;
+  //if(balance) exaLoadBalance(input->array,newComm);
 
   exaHyperCubeSort(data,newComm);
 
