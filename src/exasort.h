@@ -22,6 +22,4 @@ int exaSort2(exaArray array,exaDataType t1,uint offset1,
   exaDataType t2,uint offset2,exaSortAlgo algo,
   int loadBalance,exaComm comm);
 
-int exaLoadBalance(exaArray array,exaComm comm);
-
 #endif // exasort

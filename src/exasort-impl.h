@@ -27,6 +27,8 @@ void getArrayExtrema(void *extrema_,exaSortData data,
   unsigned field,exaComm comm);
 
 int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem);
+int load_balance(struct array *a,size_t size,struct comm *c,
+    struct crystal *cr);
 
 int exaSortLocal(exaSortData data);
 int exaSortPermuteBuf(exaArray arr,exaBuffer buf);

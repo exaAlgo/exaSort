@@ -30,21 +30,18 @@ int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
   return 0;
 }
 
-int exaLoadBalance(exaArray array,exaComm comm)
+int load_balance(struct array *a,size_t size,struct comm *c,
+    struct crystal *cr)
 {
-  slong out[2][1];
-  exaArrayScan(out,array,comm);
+  slong in=a->n,out[2][1],buf[2][1];
+  comm_scan(out,c,gs_long,gs_add,&in,1,buf);
   ulong start=out[0][0];
   ulong nelem=out[1][0];
 
-  uint np=exaCommSize(comm);
-  uint size=exaArrayGetSize(array);
+  uint *proc; exaCalloc(a->n,&proc);
 
-  uint *proc; exaCalloc(size,&proc);
-
-  set_dest(proc,np,start,size,nelem);
-
-  exaArrayTransferExt(array,proc,comm);
+  set_dest(proc,c->np,start,a->n,nelem);
+  sarray_transfer_ext_(a,size,proc,sizeof(uint),cr);
 
   exaFree(proc);
 
@@ -54,10 +51,13 @@ int exaLoadBalance(exaArray array,exaComm comm)
 int exaSortPrivate(exaSortData data,exaComm comm){
   exaHyperCubeSortData hdata;
 
-  int loadBalance=data->loadBalance;
+  int loadBalance =data->loadBalance;
   exaSortAlgo algo=data->algo;
+  exaComm dup; exaCommDup(&dup,comm);
 
-  exaComm c; exaCommDup(&c,comm);
+  struct array *a =&(data->array->arr);
+  size_t usize    =exaArrayGetUnitSize(data->array);
+  struct crystal cr; crystal_init(&cr,&comm->gsComm);
 
   switch(algo){
     case exaSortAlgoBinSort:
@@ -66,7 +66,7 @@ int exaSortPrivate(exaSortData data,exaComm comm){
     case exaSortAlgoHyperCubeSort:
       exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
       hdata->data=data;
-      exaHyperCubeSort(hdata,c);
+      exaHyperCubeSort(hdata,dup);
       exaFree(hdata);
       break;
     default:
@@ -74,11 +74,12 @@ int exaSortPrivate(exaSortData data,exaComm comm){
   }
 
   if(loadBalance){
-    exaLoadBalance(data->array,c);
+    load_balance(a,usize,&comm->gsComm,&cr);
     exaSortLocal(data);
   }
 
-  exaDestroy(c);
+  crystal_free(&cr);
+  exaDestroy(dup);
 
   return 0;
 }
