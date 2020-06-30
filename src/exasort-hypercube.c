@@ -145,7 +145,7 @@ int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
   if(threshold<2) threshold=2;
   data->threshold=threshold;
 
-  exaSortLocal(data->data);
+  sort_local(data->data);
   if(size==1) return 0;
 
   initProbes(data,comm);

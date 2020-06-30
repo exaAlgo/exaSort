@@ -75,7 +75,7 @@ int exaSortPrivate(sort_data data,exaComm comm){
 
   if(balance){
     load_balance(a,usize,&comm->gsComm,&cr);
-    exaSortLocal(data);
+    sort_local(data);
   }
 
   crystal_free(&cr);

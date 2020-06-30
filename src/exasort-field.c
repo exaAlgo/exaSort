@@ -1,6 +1,7 @@
 #include <exasort-impl.h>
 
-int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
+#if 0
+int sort_field(exaArray arr,exaDataType t,uint fieldOffset,
   exaBuffer buf,int keep)
 {
   uint nUnits   =exaArrayGetSize(arr);
@@ -43,3 +44,4 @@ int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
 
   return 0;
 }
+#endif

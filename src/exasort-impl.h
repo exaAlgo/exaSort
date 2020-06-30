@@ -22,6 +22,8 @@ typedef struct{
 
   int balance;
   exaSortAlgo algo;
+
+  buffer buf;
 } sort_data_private;
 
 typedef sort_data_private* sort_data;
@@ -34,10 +36,7 @@ void getArrayExtrema(void *extrema_,sort_data data,
 int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem);
 int load_balance(struct array *a,size_t size,struct comm *c,
     struct crystal *cr);
-
-int exaSortLocal(sort_data data);
-int exaSortField(exaArray arr,exaDataType t,uint fieldOffset,
-  exaBuffer buf,int keep);
+int sort_local(sort_data data);
 //
 // exaBinSort
 //

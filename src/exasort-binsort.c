@@ -37,7 +37,7 @@ int setBin(uint **proc_,sort_data data,exaComm comm)
 int exaBinSort(sort_data data,exaComm comm)
 {
   // Local sort
-  exaSortLocal(data);
+  sort_local(data);
 
   // Set destination bin
   uint *proc;
@@ -48,5 +48,5 @@ int exaBinSort(sort_data data,exaComm comm)
   exaFree(proc);
 
   // Locally sort again
-  exaSortLocal(data);
+  sort_local(data);
 }
