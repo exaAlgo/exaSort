@@ -14,8 +14,7 @@
 typedef struct{
   int nfields;
   exaArray array;
-  size_t unit_size;
-  size_t align;
+  size_t unit_size,align;
 
   exaDataType t[3];
   uint offset[3];

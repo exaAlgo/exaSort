@@ -41,20 +41,16 @@ int sort_field(struct array *arr,size_t usize,exaDataType t,
 
 int sort_local(sort_data sd)
 {
-  exaArray arr=sd->array;
-  int nfields=sd->nfields;
-  int i=nfields-1;
-  size_t usize=exaArrayGetUnitSize(arr);
+  struct array *arr=&sd->array->arr;
+  buffer *buf      =&sd->buf;
+  size_t usize     =sd->unit_size;
+  int i            =sd->nfields-1;
 
-  sort_field(&arr->arr,usize,sd->t[i],sd->offset[i],&sd->buf,0),i--;
+  sort_field(arr,usize,sd->t[i],sd->offset[i],buf,0),i--;
   while(i>=0)
-    sort_field(&arr->arr,usize,sd->t[i],sd->offset[i],&sd->buf,1),i--;
+    sort_field(arr,usize,sd->t[i],sd->offset[i],buf,1),i--;
 
-  uint n          =sd->array->arr.n;
-  size_t unit_size=sd->unit_size;
-  size_t align    =sd->align;
-  void *ptr       =sd->array->arr.ptr;
-  sarray_permute_buf_(align,unit_size,ptr,n,&sd->buf);
+  sarray_permute_buf_(sd->align,usize,arr->ptr,arr->n,buf);
 }
 
 int exaSortArray(exaArray arr,exaDataType t,uint offset)
