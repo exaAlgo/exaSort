@@ -99,7 +99,9 @@ int exaSort(exaArray array,exaDataType t,uint offset,
   sd.balance=balance;
   sd.algo=algo;
 
+  buffer_init(&sd.buf,1024);
   exaSortPrivate(&sd,comm);
+  buffer_free(&sd.buf);
 
   return 0;
 }
@@ -121,7 +123,9 @@ int exaSort2(exaArray array,exaDataType t1,uint offset1,
   sd.algo=algo;
   sd.balance=balance;
 
+  buffer_init(&sd.buf,1024);
   exaSortPrivate(&sd,comm);
+  buffer_free(&sd.buf);
 
   return 0;
 }
