@@ -27,8 +27,9 @@ typedef struct{
 
 typedef sort_data_private* sort_data;
 
-exaScalar getValueAsScalar(exaArray arr,uint i,
-  uint offset,exaDataType type);
+exaScalar getValueAsScalar(struct array *a,uint i,uint offset,
+    uint usize,exaDataType type);
+
 void getArrayExtrema(void *extrema_,sort_data data,
   unsigned field,exaComm comm);
 

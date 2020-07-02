@@ -15,16 +15,17 @@ int setBin(uint **proc_,sort_data data,exaComm comm)
 
   uint *proc=*proc_;
 
-  exaScalar extrema[2];
+  double extrema[2];
   getArrayExtrema((void*)extrema,data,0,comm);
-  exaScalar range=extrema[1]-extrema[0];
+  double range=extrema[1]-extrema[0];
 
   uint id=0;
   uint index=0;
   do{
-    exaScalar end=extrema[0]+(range/np)*(id+1);
+    double end=extrema[0]+(range/np)*(id+1);
     while(index<size){
-      exaScalar val=getValueAsScalar(arr,index,offset,t);
+      double val=getValueAsScalar(&arr->arr,index,offset,
+          data->unit_size,t);
       if(val<=end) proc[index++]=id;
       else break;
     }

@@ -137,17 +137,16 @@ void exaArrayScan(slong out[2][1],exaArray array,exaComm comm)
   exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
 }
 
-exaScalar getValueAsScalar(exaArray arr,uint i,
-  uint offset,exaDataType type)
+exaScalar getValueAsScalar(struct array *a,uint i,uint offset,uint usize,
+    exaDataType type)
 {
-  char* v=(char*)exaArrayGetPointer(arr)+
-    i*exaArrayGetUnitSize(arr)+offset;
+  char* v=(char*)a->ptr+i*usize+offset;
 
   sint dataI;
   uint dataUi;
   slong dataL;
   ulong dataUl;
-  exaScalar data;
+  scalar data;
 
   switch(type){
     case exaInt_t:
@@ -181,6 +180,7 @@ void getArrayExtrema(void *extrema_,sort_data data,
 {
   exaArray arr  =data->array;
   uint offset=data->offset[field];
+  uint usize =data->unit_size;
   exaDataType t =data->t[field];
 
   exaScalar *extrema=(exaScalar *)extrema_;
@@ -190,8 +190,8 @@ void getArrayExtrema(void *extrema_,sort_data data,
     extrema[0]=-DBL_MAX;
     extrema[1]=-DBL_MAX;
   } else {
-    extrema[0]=getValueAsScalar(arr,0     ,offset,t)*-1;
-    extrema[1]=getValueAsScalar(arr,size-1,offset,t);
+    extrema[0]=getValueAsScalar(&arr->arr,0     ,offset,usize,t)*-1;
+    extrema[1]=getValueAsScalar(&arr->arr,size-1,offset,usize,t);
   }
 
   exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);

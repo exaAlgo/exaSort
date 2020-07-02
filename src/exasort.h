@@ -3,6 +3,8 @@
 
 #include <exa.h>
 
+#define scalar double
+
 typedef enum{
   exaSortAlgoBinSort      =0,
   exaSortAlgoHyperCubeSort=1
