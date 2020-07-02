@@ -14,7 +14,7 @@ int initProbes(exaHyperCubeSortData data,exaComm comm)
     (void**)&data->probeCounts);
 
   exaScalar extrema[2];
-  getArrayExtrema((void*)extrema,data->data,0,comm);
+  get_extrema((void*)extrema,data->data,0,&comm->gsComm);
   exaScalar range=extrema[1]-extrema[0];
   exaScalar delta=range/(nProbes-1);
 

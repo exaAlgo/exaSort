@@ -175,8 +175,8 @@ exaScalar get_scalar(struct array *a,uint i,uint offset,uint usize,
   return data;
 }
 
-void getArrayExtrema(void *extrema_,sort_data data,
-  unsigned field,exaComm comm)
+void get_extrema(void *extrema_,sort_data data,uint field,
+    struct comm* c)
 {
   struct array *a=&data->array->arr;
   uint usize     =data->unit_size;
@@ -194,6 +194,6 @@ void getArrayExtrema(void *extrema_,sort_data data,
     extrema[1]=get_scalar(a,size-1,offset,usize,t);
   }
 
-  exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
+  comm_reduce_double(c,gs_max,extrema,2);
   extrema[0]*=-1;
 }
