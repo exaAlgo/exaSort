@@ -128,16 +128,18 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 
 int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm)
 {
-  sint size=exaCommSize(comm);
-  sint rank=exaCommRank(comm);
-
   sort_data input=data->data;
   exaArray array=input->array;
   exaDataType t =input->t[0];
   uint offset=input->offset[0];
 
-  slong out[2][1];
-  exaArrayScan(out,array,comm);
+  struct comm *c =&comm->gsComm;
+  struct array *a=&array->arr;
+
+  sint size=c->np,rank=c->id;
+
+  slong out[2][1],buf[2][1],in=a->n;
+  comm_scan(out,c,gs_long,gs_add,&in,1,buf);
   slong start=out[0][0];
   slong nelem=out[1][0];
 

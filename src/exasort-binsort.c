@@ -5,7 +5,7 @@ int setBin(uint **proc_,sort_data data,uint field,struct comm *c)
 {
   struct array *a=&data->array->arr;
   exaDataType t  =data->t[field];
-  uint offset=data->offset[field];
+  uint offset    =data->offset[field];
 
   sint np=c->np;
   uint size=a->n; exaCalloc(size,proc_); uint *proc=*proc_;
@@ -32,7 +32,9 @@ int setBin(uint **proc_,sort_data data,uint field,struct comm *c)
 
 int exaBinSort(sort_data data,exaComm comm)
 {
+  struct array *a=&data->array->arr;
   struct comm *c=&comm->gsComm;
+
   // Local sort
   sort_local(data);
 
@@ -41,8 +43,9 @@ int exaBinSort(sort_data data,exaComm comm)
   setBin(&proc,data,0,c);
 
   // Transfer to destination processor
-  exaArrayTransferExt(data->array,proc,comm);
-  //sarray_transfer_ext();
+  struct crystal cr; crystal_init(&cr,c);
+  sarray_transfer_ext_(a,data->unit_size,proc,sizeof(uint),&cr);
+  crystal_free(&cr);
 
   exaFree(proc);
 

@@ -130,43 +130,27 @@ int exaSort2(exaArray array,exaDataType t1,uint offset1,
   return 0;
 }
 
-void exaArrayScan(slong out[2][1],exaArray array,exaComm comm)
-{
-  slong buf[2][1],in[1];
-  in[0]=exaArrayGetSize(array);
-  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
-}
-
 exaScalar get_scalar(struct array *a,uint i,uint offset,uint usize,
     exaDataType type)
 {
   char* v=(char*)a->ptr+i*usize+offset;
-
-  sint dataI;
-  uint dataUi;
-  slong dataL;
-  ulong dataUl;
-  scalar data;
+  double data;
 
   switch(type){
     case exaInt_t:
-      dataI=*((exaInt*)v);
-      data=dataI;
+      data=*((sint*)v);
       break;
     case exaUInt_t:
-      dataUi=*((exaUInt*)v);
-      data=dataUi;
+      data=*((uint*)v);
       break;
     case exaLong_t:
-      dataL=*((exaLong*)v);
-      data=dataL;
+      data=*((slong*)v);
       break;
     case exaULong_t:
-      dataUl=*((exaULong*)v);
-      data=dataUl;
+      data=*((ulong*)v);
       break;
     case exaScalar_t:
-      data=*((exaScalar*)v);
+      data=*((double*)v);
       break;
     default:
       break;
