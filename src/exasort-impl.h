@@ -49,8 +49,7 @@ typedef struct{
   sort_data data;
   int nProbes;
   double *probes;
-  slong *probeCounts;
-  uint threshold;
+  slong *probe_cnt;
 } hypercube_sort_data_private;
 typedef hypercube_sort_data_private* hypercube_sort_data;
 

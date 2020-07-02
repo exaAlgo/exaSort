@@ -8,13 +8,13 @@ int init_probes(hypercube_sort_data data,struct comm *c)
 
   /* Allocate space for probes and counts */
   int nprobes=data->nProbes=3;
-  if(!data->probes     ) exaMalloc(nprobes,&data->probes     );
-  if(!data->probeCounts) exaMalloc(nprobes,&data->probeCounts);
+  if(!data->probes   ) exaMalloc(nprobes,&data->probes   );
+  if(!data->probe_cnt) exaMalloc(nprobes,&data->probe_cnt);
 
-  exaScalar extrema[2];
+  double extrema[2];
   get_extrema((void*)extrema,data->data,0,c);
-  exaScalar range=extrema[1]-extrema[0];
-  exaScalar delta=range/(nprobes-1);
+  double range=extrema[1]-extrema[0];
+  double delta=range/(nprobes-1);
 
   data->probes[0]=extrema[0];
   data->probes[1]=extrema[0]+delta;
@@ -34,31 +34,29 @@ int update_probe_counts(hypercube_sort_data data,struct comm *c)
   struct array *a=&input->array->arr;
   uint size      =a->n;
   uint i;
-  for(i=0;i<nprobes;i++) data->probeCounts[i]=0;
+  for(i=0;i<nprobes;i++) data->probe_cnt[i]=0;
 
   uint e;
   for(e=0;e<size;e++){
     double val_e=get_scalar(a,e,offset,input->unit_size,t);
     for(i=0;i<nprobes;i++)
-      if(val_e<data->probes[i]) data->probeCounts[i]++;
+      if(val_e<data->probes[i]) data->probe_cnt[i]++;
   }
 
   ulong buf[3];
-  comm_allreduce(c,gs_long,gs_add,data->probeCounts,nprobes,buf);
+  comm_allreduce(c,gs_long,gs_add,data->probe_cnt,nprobes,buf);
 
   return 0;
 }
 
-int update_probes(slong nelem,hypercube_sort_data data)
+int update_probes(slong nelem,double *probes,ulong *probe_cnt,
+    uint threshold)
 {
-  ulong *probeCounts=data->probeCounts;
-  exaScalar *probes=data->probes;
-
   slong expected=nelem/2;
-  if(abs(data->probeCounts[1]-expected)<data->threshold)
-    return 0;
 
-  if(probeCounts[1]<expected) probes[0]=probes[1];
+  if(abs(probe_cnt[1]-expected)<threshold) return 0;
+
+  if(probe_cnt[1]<expected) probes[0]=probes[1];
   else probes[2]=probes[1];
 
   probes[1]=probes[0]+(probes[2]-probes[0])/2;
@@ -66,7 +64,7 @@ int update_probes(slong nelem,hypercube_sort_data data)
   return 0;
 }
 
-int transferElements(hypercube_sort_data data,exaComm comm)
+int transfer_elem(hypercube_sort_data data,exaComm comm)
 {
   sort_data input=data->data;
   exaArray array=input->array;
@@ -77,7 +75,7 @@ int transferElements(hypercube_sort_data data,exaComm comm)
 
   uint e,lowerSize=0,upperSize=0;
   for(e=0;e<size;e++){
-    exaScalar val_e=get_scalar(&array->arr,e,offset,input->unit_size,t);
+    double val_e=get_scalar(&array->arr,e,offset,input->unit_size,t);
     if(val_e<data->probes[1] ||
        fabs(val_e-data->probes[1])<EXA_TOL)
       lowerSize++;
@@ -131,7 +129,6 @@ int exaHyperCubeSort(hypercube_sort_data data,exaComm comm)
 
   uint threshold=(nelem/(10*size));
   if(threshold<2) threshold=2;
-  data->threshold=threshold;
 
   sort_local(data->data);
   if(size==1) return 0;
@@ -139,12 +136,12 @@ int exaHyperCubeSort(hypercube_sort_data data,exaComm comm)
   init_probes        (data,c);
   update_probe_counts(data,c);
 
-  int maxIter=log2((data->probes[2]-data->probes[0])/EXA_TOL),iter=0;
-  while(abs(nelem/2-data->probeCounts[1])>threshold && iter++<maxIter){
-    update_probes(nelem,data);
+  int max_iter=log2((data->probes[2]-data->probes[0])/EXA_TOL),iter=0;
+  while(abs(nelem/2-data->probe_cnt[1])>threshold && iter++<max_iter){
+    update_probes(nelem,data->probes,data->probe_cnt,threshold);
     update_probe_counts(data,c);
   }
-  transferElements(data,comm);
+  transfer_elem(data,comm);
 
   // TODO exaFree data->probes
 
