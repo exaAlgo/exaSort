@@ -71,37 +71,34 @@ int transfer_elem(hypercube_sort_data data,exaComm comm)
   uint offset=input->offset[0];
   exaDataType t =input->t[0];
 
-  sint size=exaArrayGetSize(array);
+  struct array *a=&array->arr;
+  uint size      =a->n;
 
-  uint e,lowerSize=0,upperSize=0;
+  uint e,lown=0,uppern=0;
   for(e=0;e<size;e++){
-    double val_e=get_scalar(&array->arr,e,offset,input->unit_size,t);
-    if(val_e<data->probes[1] ||
-       fabs(val_e-data->probes[1])<EXA_TOL)
-      lowerSize++;
-    else upperSize++;
+    double val=get_scalar(a,e,offset,input->unit_size,t);
+    if(val<data->probes[1] ||
+       fabs(val-data->probes[1])<EXA_TOL)
+      lown++;
+    else uppern++;
   }
 
   ulong out[2][2],in[2],buf[2][2];
-  in[0]=lowerSize,in[1]=upperSize;
+  in[0]=lown,in[1]=uppern;
   exaCommScan(comm,out,in,buf,2,exaULong_t,exaAddOp);
 
-  ulong lowerStart=out[0][0];
-  ulong upperStart=out[0][1];
-  ulong lowerElements=out[1][0];
-  ulong upperElements=out[1][1];
+  ulong lstart=out[0][0],ustart=out[0][1];
+  ulong lelem =out[1][0],uelem =out[1][1];
 
   uint np=exaCommSize(comm);
-  uint lowerNp=np/2;
-  uint upperNp=np-lowerNp;
+  uint lnp=np/2,unp=np-lnp;
 
-  uint *proc;
-  exaCalloc(size,&proc);
+  uint *proc; exaCalloc(size,&proc);
 
-  set_dest(proc,lowerNp,lowerStart,lowerSize,lowerElements);
-  set_dest(&proc[lowerSize],upperNp,upperStart,upperSize,upperElements);
+  set_dest(proc       ,lnp,lstart,lown  ,lelem);
+  set_dest(&proc[lown],unp,ustart,uppern,uelem);
 
-  for(e=lowerSize;e<size;e++) proc[e]+=lowerNp;
+  for(e=lown;e<size;e++) proc[e]+=lnp;
 
   exaArrayTransferExt(array,proc,comm);
 
