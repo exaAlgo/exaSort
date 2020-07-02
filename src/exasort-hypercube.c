@@ -49,18 +49,6 @@ int update_probe_counts(hypercube_sort_data data,struct comm *c)
   return 0;
 }
 
-int reachedThreshold(slong nelem,hypercube_sort_data data,
-  exaComm c)
-{
-  int converged=1;
-
-  ulong expected=nelem/2;
-  if(abs(data->probeCounts[1]-expected)>data->threshold)
-    converged=0;
-
-  return converged;
-}
-
 int update_probes(slong nelem,hypercube_sort_data data)
 {
   ulong *probeCounts=data->probeCounts;
@@ -152,7 +140,7 @@ int exaHyperCubeSort(hypercube_sort_data data,exaComm comm)
   update_probe_counts(data,c);
 
   int maxIter=log2((data->probes[2]-data->probes[0])/EXA_TOL),iter=0;
-  while(!reachedThreshold(nelem,data,comm) && iter++<maxIter){
+  while(abs(nelem/2-data->probeCounts[1])>threshold && iter++<maxIter){
     update_probes(nelem,data);
     update_probe_counts(data,c);
   }
