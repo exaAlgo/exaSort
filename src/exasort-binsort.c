@@ -24,7 +24,7 @@ int setBin(uint **proc_,sort_data data,exaComm comm)
   do{
     double end=extrema[0]+(range/np)*(id+1);
     while(index<size){
-      double val=getValueAsScalar(&arr->arr,index,offset,
+      double val=get_scalar(&arr->arr,index,offset,
           data->unit_size,t);
       if(val<=end) proc[index++]=id;
       else break;

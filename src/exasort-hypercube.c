@@ -40,7 +40,7 @@ int updateProbeCounts(exaHyperCubeSortData data,exaComm comm)
 
   uint e;
   for(e=0;e<size;e++){
-    exaScalar val_e=getValueAsScalar(&array->arr,e,offset,input->unit_size,t);
+    exaScalar val_e=get_scalar(&array->arr,e,offset,input->unit_size,t);
     for(i=0;i<nProbes;i++)
       if(val_e<data->probes[i]) data->probeCounts[i]++;
   }
@@ -91,7 +91,7 @@ int transferElements(exaHyperCubeSortData data,exaComm comm)
 
   uint e,lowerSize=0,upperSize=0;
   for(e=0;e<size;e++){
-    exaScalar val_e=getValueAsScalar(&array->arr,e,offset,input->unit_size,t);
+    exaScalar val_e=get_scalar(&array->arr,e,offset,input->unit_size,t);
     if(val_e<data->probes[1] ||
        fabs(val_e-data->probes[1])<EXA_TOL)
       lowerSize++;
