@@ -49,6 +49,8 @@ int load_balance(struct array *a,size_t size,struct comm *c,
 }
 
 int exaSortPrivate(sort_data data,exaComm comm){
+  struct comm *c=&comm->gsComm;
+
   exaHyperCubeSortData hdata;
 
   int balance =data->balance;
@@ -61,7 +63,7 @@ int exaSortPrivate(sort_data data,exaComm comm){
 
   switch(algo){
     case exaSortAlgoBinSort:
-      exaBinSort(data,comm);
+      exaBinSort(data,c);
       break;
     case exaSortAlgoHyperCubeSort:
       exaMallocArray(1,sizeof(*hdata),(void**)&hdata);

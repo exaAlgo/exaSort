@@ -1,7 +1,7 @@
 #include <exasort-impl.h>
 
 /* assumes array is locally sorted */
-int setBin(uint **proc_,sort_data data,uint field,struct comm *c)
+int set_bin(uint **proc_,sort_data data,uint field,struct comm *c)
 {
   struct array *a=&data->array->arr;
   exaDataType t  =data->t[field];
@@ -30,17 +30,16 @@ int setBin(uint **proc_,sort_data data,uint field,struct comm *c)
     proc[index]=np-1;
 }
 
-int exaBinSort(sort_data data,exaComm comm)
+int exaBinSort(sort_data data,struct comm *c)
 {
   struct array *a=&data->array->arr;
-  struct comm *c=&comm->gsComm;
 
   // Local sort
   sort_local(data);
 
   // Set destination bin
   uint *proc;
-  setBin(&proc,data,0,c);
+  set_bin(&proc,data,0,c);
 
   // Transfer to destination processor
   struct crystal cr; crystal_init(&cr,c);

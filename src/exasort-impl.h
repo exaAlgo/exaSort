@@ -41,7 +41,7 @@ int sort_local(sort_data data);
 //
 // exaBinSort
 //
-int exaBinSort(sort_data data,exaComm comm);
+int exaBinSort(sort_data data,struct comm *c);
 //
 // exaHyperCubeSort
 //
