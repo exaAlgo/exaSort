@@ -27,7 +27,7 @@ typedef struct{
 
 typedef sort_data_private* sort_data;
 
-exaScalar get_scalar(struct array *a,uint i,uint offset,uint usize,
+double get_scalar(struct array *a,uint i,uint offset,uint usize,
   exaDataType type);
 
 void get_extrema(void *extrema_,sort_data data,uint field,struct comm *c);
@@ -48,14 +48,12 @@ int exaBinSort(sort_data data,struct comm *c);
 typedef struct{
   sort_data data;
   int nProbes;
-  exaScalar *probes;
-  ulong *probeCounts;
+  double *probes;
+  slong *probeCounts;
   uint threshold;
-} exaHyperCubeSortData_private;
-typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
+} hypercube_sort_data_private;
+typedef hypercube_sort_data_private* hypercube_sort_data;
 
-int initProbes(exaHyperCubeSortData data,exaComm comm);
-int updateProbeCounts(exaHyperCubeSortData data,exaComm comm);
-int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm);
+int exaHyperCubeSort(hypercube_sort_data data,exaComm comm);
 
 #endif // exasort-impl

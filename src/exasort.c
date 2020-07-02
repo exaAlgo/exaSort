@@ -1,4 +1,5 @@
 #include <exasort-impl.h>
+#include <exa-memory.h>
 
 int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
 {
@@ -51,7 +52,7 @@ int load_balance(struct array *a,size_t size,struct comm *c,
 int exaSortPrivate(sort_data data,exaComm comm){
   struct comm *c=&comm->gsComm;
 
-  exaHyperCubeSortData hdata;
+  hypercube_sort_data hdata;
 
   int balance =data->balance;
   exaSortAlgo algo=data->algo;
@@ -66,7 +67,7 @@ int exaSortPrivate(sort_data data,exaComm comm){
       exaBinSort(data,c);
       break;
     case exaSortAlgoHyperCubeSort:
-      exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
+      exaMalloc(1,&hdata);
       hdata->data=data;
       exaHyperCubeSort(hdata,dup);
       exaFree(hdata);
@@ -180,6 +181,7 @@ void get_extrema(void *extrema_,sort_data data,uint field,
     extrema[1]=get_scalar(a,size-1,offset,usize,t);
   }
 
-  comm_reduce_double(c,gs_max,extrema,2);
+  double buf[2];
+  comm_allreduce(c,gs_double,gs_max,extrema,2,buf);
   extrema[0]*=-1;
 }
