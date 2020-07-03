@@ -100,3 +100,41 @@ void get_extrema(void *extrema_,sort_data data,uint field,struct comm* c)
   comm_allreduce(c,gs_double,gs_max,extrema,2,buf);
   extrema[0]*=-1;
 }
+
+int sort_private(sort_data data,struct comm *c){
+  struct comm dup; comm_dup(&dup,c);
+
+  int balance =data->balance;
+  exaSortAlgo algo=data->algo;
+
+  struct array *a=data->a;
+  size_t usize   =data->unit_size;
+
+  hypercube_sort_data hdata;
+
+  switch(algo){
+    case exaSortAlgoBinSort:
+      exaBinSort(data,c);
+      break;
+    case exaSortAlgoHyperCubeSort:
+      exaMalloc(1,&hdata);
+      hdata->data=data; hdata->probes=NULL; hdata->probe_cnt=NULL;
+      exaHyperCubeSort(hdata,&dup);
+      exaFree(hdata->probes); exaFree(hdata->probe_cnt);
+      exaFree(hdata);
+      break;
+    default:
+      break;
+  }
+
+  if(balance){
+    struct crystal cr; crystal_init(&cr,c);
+    load_balance(a,usize,c,&cr);
+    sort_local(data);
+    crystal_free(&cr);
+  }
+
+  comm_free(&dup);
+
+  return 0;
+}
