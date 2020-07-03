@@ -53,6 +53,6 @@ typedef struct{
 } hypercube_sort_data_private;
 typedef hypercube_sort_data_private* hypercube_sort_data;
 
-int exaHyperCubeSort(hypercube_sort_data data,exaComm comm);
+int exaHyperCubeSort(hypercube_sort_data data,struct comm *c);
 
 #endif // exasort-impl

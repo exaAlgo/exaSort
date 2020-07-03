@@ -64,57 +64,55 @@ int update_probes(slong nelem,double *probes,ulong *probe_cnt,
   return 0;
 }
 
-int transfer_elem(hypercube_sort_data data,exaComm comm)
+int transfer_elem(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
-  exaArray array=input->array;
-  uint offset=input->offset[0];
-  exaDataType t =input->t[0];
+  exaArray array =input->array;
+  uint usize     =input->unit_size;
+  uint offset    =input->offset[0];
+  exaDataType t  =input->t[0];
 
   struct array *a=&array->arr;
   uint size      =a->n;
 
   uint e,lown=0,uppern=0;
   for(e=0;e<size;e++){
-    double val=get_scalar(a,e,offset,input->unit_size,t);
-    if(val<data->probes[1] ||
-       fabs(val-data->probes[1])<EXA_TOL)
-      lown++;
+    double val=get_scalar(a,e,offset,usize,t);
+    if(val<data->probes[1]) lown++;
     else uppern++;
   }
 
-  ulong out[2][2],in[2],buf[2][2];
+  slong out[2][2],in[2],buf[2][2];
   in[0]=lown,in[1]=uppern;
-  exaCommScan(comm,out,in,buf,2,exaULong_t,exaAddOp);
+  comm_scan(out,c,gs_long,gs_add,in,2,buf);
 
   ulong lstart=out[0][0],ustart=out[0][1];
   ulong lelem =out[1][0],uelem =out[1][1];
 
-  uint np=exaCommSize(comm);
-  uint lnp=np/2,unp=np-lnp;
+  uint np=c->np,lnp=np/2,unp=np-lnp;
 
   uint *proc; exaCalloc(size,&proc);
-
-  set_dest(proc       ,lnp,lstart,lown  ,lelem);
-  set_dest(&proc[lown],unp,ustart,uppern,uelem);
+  set_dest(proc     ,lnp,lstart,lown  ,lelem);
+  set_dest(proc+lown,unp,ustart,uppern,uelem);
 
   for(e=lown;e<size;e++) proc[e]+=lnp;
 
-  exaArrayTransferExt(array,proc,comm);
+  struct crystal cr; crystal_init(&cr,c);
+  sarray_transfer_ext_(a,usize,proc,sizeof(uint),&cr);
+  crystal_free(&cr);
 
   exaFree(proc);
 
   return 0;
 }
 
-int exaHyperCubeSort(hypercube_sort_data data,exaComm comm)
+int exaHyperCubeSort(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
   exaArray array=input->array;
   exaDataType t =input->t[0];
   uint offset=input->offset[0];
 
-  struct comm *c =&comm->gsComm;
   struct array *a=&array->arr;
 
   sint size=c->np,rank=c->id;
@@ -138,22 +136,26 @@ int exaHyperCubeSort(hypercube_sort_data data,exaComm comm)
     update_probes(nelem,data->probes,data->probe_cnt,threshold);
     update_probe_counts(data,c);
   }
-  transfer_elem(data,comm);
+  transfer_elem(data,c);
 
   // TODO exaFree data->probes
 
   // split the communicator
-  exaComm newComm;
+  struct comm nc;
   sint lower=(rank<size/2)?1:0;
-  exaCommSplit(comm,lower,rank,&newComm);
+#if defined(MPI)
+  MPI_Comm nc_; MPI_Comm_split(c->c,lower,rank,&nc_);
+  comm_init(&nc,nc_);
+  MPI_Comm_free(&nc_);
+#else
+  comm_init(&nc,1);
+#endif
 
   // FIXME
   //int balance=input->balance;
   //if(balance) exaLoadBalance(input->array,newComm);
-
-  exaHyperCubeSort(data,newComm);
-
-  exaDestroy(newComm);
+  exaHyperCubeSort(data,&nc);
+  comm_free(&nc);
 
   return 0;
 }

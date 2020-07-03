@@ -50,17 +50,15 @@ int load_balance(struct array *a,size_t size,struct comm *c,
 }
 
 int exaSortPrivate(sort_data data,exaComm comm){
-  struct comm *c=&comm->gsComm;
+  struct comm *c=&comm->gsComm,dup; comm_dup(&dup,c);
 
   hypercube_sort_data hdata;
 
   int balance =data->balance;
   exaSortAlgo algo=data->algo;
-  exaComm dup; exaCommDup(&dup,comm);
 
   struct array *a =&data->array->arr;
   size_t usize    =exaArrayGetUnitSize(data->array);
-  struct crystal cr; crystal_init(&cr,&comm->gsComm);
 
   switch(algo){
     case exaSortAlgoBinSort:
@@ -69,7 +67,7 @@ int exaSortPrivate(sort_data data,exaComm comm){
     case exaSortAlgoHyperCubeSort:
       exaMalloc(1,&hdata);
       hdata->data=data;
-      exaHyperCubeSort(hdata,dup);
+      exaHyperCubeSort(hdata,&dup);
       exaFree(hdata);
       break;
     default:
@@ -77,12 +75,13 @@ int exaSortPrivate(sort_data data,exaComm comm){
   }
 
   if(balance){
+    struct crystal cr; crystal_init(&cr,&comm->gsComm);
     load_balance(a,usize,&comm->gsComm,&cr);
     sort_local(data);
+    crystal_free(&cr);
   }
 
-  crystal_free(&cr);
-  exaDestroy(dup);
+  comm_free(&dup);
 
   return 0;
 }
