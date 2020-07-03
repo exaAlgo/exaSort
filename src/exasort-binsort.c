@@ -4,7 +4,7 @@
 int set_bin(uint **proc_,sort_data data,uint field,struct comm *c)
 {
   struct array *a=data->a;
-  exaDataType t  =data->t[field];
+  gs_dom t  =data->t[field];
   uint offset    =data->offset[field];
 
   sint np=c->np;

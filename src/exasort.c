@@ -83,7 +83,7 @@ void get_extrema(void *extrema_,sort_data data,uint field,struct comm* c)
   struct array *a=data->a;
   uint usize     =data->unit_size;
   uint offset    =data->offset[field];
-  exaDataType t  =data->t[field];
+  gs_dom t  =data->t[field];
 
   double *extrema=(double *)extrema_;
 

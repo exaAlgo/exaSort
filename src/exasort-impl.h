@@ -8,12 +8,15 @@
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
 #define max(a,b) ((a)>(b) ? (a) : (b))
+
+#define gs_ulong 1024
+#define gs_uint  2048
 //
 // exaSort: general functions
 //
 typedef struct{
   int nfields;
-  exaDataType t[3];
+  gs_dom t[3];
   uint offset[3];
 
   struct array *a;
@@ -28,7 +31,7 @@ typedef struct{
 typedef sort_data_private* sort_data;
 
 double get_scalar(struct array *a,uint i,uint offset,uint usize,
-  exaDataType type);
+  gs_dom type);
 void get_extrema(void *extrema_,sort_data data,uint field,struct comm *c);
 int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem);
 int load_balance(struct array *a,size_t size,struct comm *c,
@@ -51,5 +54,4 @@ typedef struct{
 typedef hypercube_sort_data_private* hypercube_sort_data;
 
 int exaHyperCubeSort(hypercube_sort_data data,struct comm *c);
-
 #endif // exasort-impl

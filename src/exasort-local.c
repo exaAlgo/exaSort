@@ -1,36 +1,26 @@
 #include <exasort-impl.h>
 
-int sort_field(struct array *arr,size_t usize,exaDataType t,
-    uint off,buffer *buf,int keep)
+int sort_field(struct array *arr,size_t usize,gs_dom t,uint off,
+    buffer *buf,int keep)
 {
   uint nunits=arr->n;
   void *ptr  =arr->ptr;
-
-  size_t dsize=sizeof(double);
-  size_t fsize =sizeof(float );
-  size_t ssize=sizeof(exaScalar);
-
   switch(t){
-    case exaScalar_t:
-#if(dsize==ssize)
+    case gs_double:
         gslib_sortp_double(buf,keep,(double*)((char*)ptr+off),
             nunits,usize);
-#elif(fsize==ssize)
+      break;
+#if 0 //FIXME
+    case gs_float:
         gslib_sortp_float (buf,keep,(float *)((char*)ptr+off),
             nunits,usize);
+      break;
 #endif
+    case gs_long:
+      gslib_sortp_ull(buf,keep,(ulong *)((char*)ptr+off),nunits,usize);
       break;
-    case exaULong_t:
-      gslib_sortp_ull(buf,keep,(exaULong*)((char*)ptr+off),nunits,usize);
-      break;
-    case exaLong_t:
-      gslib_sortp_ull(buf,keep,(exaLong* )((char*)ptr+off),nunits,usize);
-      break;
-    case exaUInt_t:
-      gslib_sortp_ui (buf,keep,(exaUInt* )((char*)ptr+off),nunits,usize);
-      break;
-    case exaInt_t:
-      gslib_sortp_ui (buf,keep,(exaInt*  )((char*)ptr+off),nunits,usize);
+    case gs_int:
+      gslib_sortp_ui (buf,keep,(uint  *)((char*)ptr+off),nunits,usize);
       break;
     default:
       break;

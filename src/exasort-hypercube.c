@@ -27,7 +27,7 @@ int update_probe_counts(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
   uint offset  =input->offset[0];
-  exaDataType t=input->t[0];
+  gs_dom t=input->t[0];
 
   uint nprobes =data->nProbes;
 
@@ -69,7 +69,7 @@ int transfer_elem(hypercube_sort_data data,struct comm *c)
   struct array *a=input->a;
   uint usize     =input->unit_size;
   uint offset    =input->offset[0];
-  exaDataType t  =input->t[0];
+  gs_dom t  =input->t[0];
 
   uint size      =a->n;
 
@@ -108,7 +108,7 @@ int exaHyperCubeSort(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
   struct array *a=input->a;
-  exaDataType t  =input->t[0];
+  gs_dom t  =input->t[0];
   uint offset    =input->offset[0];
 
   sint size=c->np,rank=c->id;
