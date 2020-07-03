@@ -138,8 +138,6 @@ int exaHyperCubeSort(hypercube_sort_data data,struct comm *c)
   }
   transfer_elem(data,c);
 
-  // TODO exaFree data->probes
-
   // split the communicator
   struct comm nc;
   sint lower=(rank<size/2)?1:0;
@@ -151,9 +149,7 @@ int exaHyperCubeSort(hypercube_sort_data data,struct comm *c)
   comm_init(&nc,1);
 #endif
 
-  // FIXME
-  //int balance=input->balance;
-  //if(balance) exaLoadBalance(input->array,newComm);
+  // TODO: Keep load balancing after each split
   exaHyperCubeSort(data,&nc);
   comm_free(&nc);
 

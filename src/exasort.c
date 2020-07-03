@@ -66,8 +66,9 @@ int exaSortPrivate(sort_data data,exaComm comm){
       break;
     case exaSortAlgoHyperCubeSort:
       exaMalloc(1,&hdata);
-      hdata->data=data;
+      hdata->data=data; hdata->probes=NULL; hdata->probe_cnt=NULL;
       exaHyperCubeSort(hdata,&dup);
+      exaFree(hdata->probes); exaFree(hdata->probe_cnt);
       exaFree(hdata);
       break;
     default:
