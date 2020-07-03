@@ -3,7 +3,7 @@
 /* assumes array is locally sorted */
 int set_bin(uint **proc_,sort_data data,uint field,struct comm *c)
 {
-  struct array *a=&data->array->arr;
+  struct array *a=data->a;
   exaDataType t  =data->t[field];
   uint offset    =data->offset[field];
 
@@ -32,8 +32,6 @@ int set_bin(uint **proc_,sort_data data,uint field,struct comm *c)
 
 int exaBinSort(sort_data data,struct comm *c)
 {
-  struct array *a=&data->array->arr;
-
   // Local sort
   sort_local(data);
 
@@ -43,7 +41,7 @@ int exaBinSort(sort_data data,struct comm *c)
 
   // Transfer to destination processor
   struct crystal cr; crystal_init(&cr,c);
-  sarray_transfer_ext_(a,data->unit_size,proc,sizeof(uint),&cr);
+  sarray_transfer_ext_(data->a,data->unit_size,proc,sizeof(uint),&cr);
   crystal_free(&cr);
 
   exaFree(proc);

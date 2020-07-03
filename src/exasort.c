@@ -80,7 +80,7 @@ double get_scalar(struct array *a,uint i,uint offset,uint usize,
 
 void get_extrema(void *extrema_,sort_data data,uint field,struct comm* c)
 {
-  struct array *a=&data->array->arr;
+  struct array *a=data->a;
   uint usize     =data->unit_size;
   uint offset    =data->offset[field];
   exaDataType t  =data->t[field];

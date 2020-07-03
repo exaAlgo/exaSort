@@ -41,64 +41,14 @@ int sort_field(struct array *arr,size_t usize,exaDataType t,
 
 int sort_local(sort_data sd)
 {
-  struct array *arr=&sd->array->arr;
-  buffer *buf      =&sd->buf;
-  size_t usize     =sd->unit_size;
-  int i            =sd->nfields-1;
+  struct array *a=sd->a;
+  buffer *buf    =&sd->buf;
+  size_t usize   =sd->unit_size;
+  int i          =sd->nfields-1;
 
-  sort_field(arr,usize,sd->t[i],sd->offset[i],buf,0),i--;
+  sort_field(a,usize,sd->t[i],sd->offset[i],buf,0),i--;
   while(i>=0)
-    sort_field(arr,usize,sd->t[i],sd->offset[i],buf,1),i--;
+    sort_field(a,usize,sd->t[i],sd->offset[i],buf,1),i--;
 
-  sarray_permute_buf_(sd->align,usize,arr->ptr,arr->n,buf);
-}
-
-int exaSortArray(exaArray arr,exaDataType t,uint offset)
-{
-  sort_data_private data;
-
-  data.array=arr,data.nfields=1;
-  data.t[0]=t,data.offset[0]=offset;
-
-  data.align=exaArrayGetAlign(arr);
-  data.unit_size=exaArrayGetUnitSize(arr);
-
-  buffer_init(&data.buf,1024);
-  sort_local(&data);
-  buffer_free(&data.buf);
-}
-
-int exaSortArray2(exaArray arr,exaDataType t1,uint offset1,
-  exaDataType t2,uint offset2)
-{
-  sort_data_private data;
-
-  data.array=arr,data.nfields=2;
-  data.t[0]=t1,data.offset[0]=offset1;
-  data.t[1]=t2,data.offset[1]=offset2;
-
-  data.align=exaArrayGetAlign(arr);
-  data.unit_size=exaArrayGetUnitSize(arr);
-
-  buffer_init(&data.buf,1024);
-  sort_local(&data);
-  buffer_free(&data.buf);
-}
-
-int exaSortArray3(exaArray arr,exaDataType t1,uint offset1,
-  exaDataType t2,uint offset2,exaDataType t3,uint offset3)
-{
-  sort_data_private data;
-
-  data.array=arr,data.nfields=3;
-  data.t[0]=t1,data.offset[0]=offset1;
-  data.t[1]=t2,data.offset[1]=offset2;
-  data.t[2]=t3,data.offset[2]=offset3;
-
-  data.align=exaArrayGetAlign(arr);
-  data.unit_size=exaArrayGetUnitSize(arr);
-
-  buffer_init(&data.buf,1024);
-  sort_local(&data);
-  buffer_free(&data.buf);
+  sarray_permute_buf_(sd->align,usize,a->ptr,a->n,buf);
 }

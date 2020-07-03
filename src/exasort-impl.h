@@ -13,11 +13,11 @@
 //
 typedef struct{
   int nfields;
-  exaArray array;
-  size_t unit_size,align;
-
   exaDataType t[3];
   uint offset[3];
+
+  struct array *a;
+  size_t unit_size,align;
 
   int balance;
   exaSortAlgo algo;

@@ -31,13 +31,12 @@ int update_probe_counts(hypercube_sort_data data,struct comm *c)
 
   uint nprobes =data->nProbes;
 
-  struct array *a=&input->array->arr;
-  uint size      =a->n;
   uint i;
   for(i=0;i<nprobes;i++) data->probe_cnt[i]=0;
 
+  struct array *a=input->a;
   uint e;
-  for(e=0;e<size;e++){
+  for(e=0;e<a->n;e++){
     double val_e=get_scalar(a,e,offset,input->unit_size,t);
     for(i=0;i<nprobes;i++)
       if(val_e<data->probes[i]) data->probe_cnt[i]++;
@@ -67,12 +66,11 @@ int update_probes(slong nelem,double *probes,ulong *probe_cnt,
 int transfer_elem(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
-  exaArray array =input->array;
+  struct array *a=input->a;
   uint usize     =input->unit_size;
   uint offset    =input->offset[0];
   exaDataType t  =input->t[0];
 
-  struct array *a=&array->arr;
   uint size      =a->n;
 
   uint e,lown=0,uppern=0;
@@ -109,11 +107,9 @@ int transfer_elem(hypercube_sort_data data,struct comm *c)
 int exaHyperCubeSort(hypercube_sort_data data,struct comm *c)
 {
   sort_data input=data->data;
-  exaArray array=input->array;
-  exaDataType t =input->t[0];
-  uint offset=input->offset[0];
-
-  struct array *a=&array->arr;
+  struct array *a=input->a;
+  exaDataType t  =input->t[0];
+  uint offset    =input->offset[0];
 
   sint size=c->np,rank=c->id;
 
