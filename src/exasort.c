@@ -50,25 +50,19 @@ int load_balance(struct array *a,size_t size,struct comm *c,
 }
 
 double get_scalar(struct array *a,uint i,uint offset,uint usize,
-    exaDataType type)
+    gs_dom type)
 {
   char* v=(char*)a->ptr+i*usize+offset;
   double data;
 
   switch(type){
-    case exaInt_t:
-      data=*((sint*)v);
-      break;
-    case exaUInt_t:
+    case gs_int:
       data=*((uint*)v);
       break;
-    case exaLong_t:
-      data=*((slong*)v);
-      break;
-    case exaULong_t:
+    case gs_long:
       data=*((ulong*)v);
       break;
-    case exaScalar_t:
+    case gs_double:
       data=*((double*)v);
       break;
     default:
@@ -83,7 +77,7 @@ void get_extrema(void *extrema_,sort_data data,uint field,struct comm* c)
   struct array *a=data->a;
   uint usize     =data->unit_size;
   uint offset    =data->offset[field];
-  gs_dom t  =data->t[field];
+  gs_dom t       =data->t[field];
 
   double *extrema=(double *)extrema_;
 
