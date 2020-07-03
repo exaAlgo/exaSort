@@ -1,5 +1,5 @@
+#include <exa-impl.h>
 #include <exasort-impl.h>
-#include <exa-memory.h>
 
 gs_dom exa_to_gs(exaDataType t){
   gs_dom out;

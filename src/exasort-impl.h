@@ -1,16 +1,12 @@
 #ifndef _EXASORT_IMPL_H_
 #define _EXASORT_IMPL_H_
 
+#include <exasort.h>
 #include <exa-impl.h>
 #include <exa-memory.h>
 
-#include <exasort.h>
-
 #define min(a,b) ((a)<(b) ? (a) : (b))
 #define max(a,b) ((a)>(b) ? (a) : (b))
-
-#define gs_ulong 1024
-#define gs_uint  2048
 //
 // exaSort: general functions
 //
