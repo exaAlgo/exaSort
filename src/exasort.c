@@ -1,164 +1,69 @@
 #include <exasort-impl.h>
+#include <exa-memory.h>
 
-int setDestination(exaUInt *proc,int np,exaULong start,
-  exaUInt size,exaULong nElements)
+int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem)
 {
-  exaUInt partitionSize=nElements/np;
-
-  exaUInt i;
-  if(partitionSize==0){
-    for(i=0;i<size;i++)
-      proc[i]=start+i;
+  uint psize=nelem/np,i;
+  if(psize==0){
+    for(i=0;i<size;i++) proc[i]=start+i;
     return 0;
   }
 
-  exaUInt id1,id2;
+  uint nrem =nelem-np*psize;
+  uint lower=nrem*(psize+1);
 
-  exaUInt nrem=nElements-np*partitionSize;
-  exaUInt lower=nrem*(partitionSize+1);
-  if(start<=lower) id1=start/(partitionSize+1);
-  else id1=nrem+(start-lower)/partitionSize;
+  uint id1,id2;
+  if(start<lower) id1=start/(psize+1);
+  else id1=nrem+(start-lower)/psize;
 
-  if((start+size)<=lower) id2=(start+size)/(partitionSize+1);
-  else id2=nrem+(start+size-lower)/partitionSize;
+  if((start+size)<lower) id2=(start+size)/(psize+1);
+  else id2=nrem+(start+size-lower)/psize;
 
   i=0;
   while(id1<=id2 && i<size){
-    exaULong s=id1*partitionSize+min(id1,nrem);
-    exaULong e=(id1+1)*partitionSize+min(id1+1,nrem);
-    e=min(e,nElements);
-    while(s<=start+i && start+i<e && i<size){
-      proc[i++]=id1;
-    }
+    ulong s=id1*psize+min(id1,nrem);
+    ulong e=(id1+1)*psize+min(id1+1,nrem);
+    e=min(e,nelem);
+    while(s<=start+i && start+i<e && i<size) proc[i++]=id1;
     id1++;
   }
 
   return 0;
 }
 
-int exaLoadBalance(exaArray array,exaComm comm)
+int load_balance(struct array *a,size_t size,struct comm *c,
+    struct crystal *cr)
 {
-  exaLong out[2][1];
-  exaArrayScan(out,array,comm);
-  exaULong start=out[0][0];
-  exaULong nElements=out[1][0];
+  slong in=a->n,out[2][1],buf[2][1];
+  comm_scan(out,c,gs_long,gs_add,&in,1,buf);
+  ulong start=out[0][0];
+  ulong nelem=out[1][0];
 
-  exaInt np=exaCommSize(comm);
-  exaUInt size=exaArrayGetSize(array);
+  uint *proc; exaCalloc(a->n,&proc);
 
-  exaUInt *proc; exaCalloc(size,&proc);
-
-  setDestination(proc,np,start,size,nElements);
-
-  exaArrayTransferExt(array,proc,comm);
+  set_dest(proc,c->np,start,a->n,nelem);
+  sarray_transfer_ext_(a,size,proc,sizeof(uint),cr);
 
   exaFree(proc);
 
   return 0;
 }
 
-int exaSortPrivate(exaSortData data,exaComm comm){
-  exaHyperCubeSortData hdata;
-
-  int loadBalance=data->loadBalance;
-  exaSortAlgo algo=data->algo;
-
-  switch(algo){
-    case exaSortAlgoBinSort:
-      exaBinSort(data,comm);
-      break;
-    case exaSortAlgoHyperCubeSort:
-      exaMallocArray(1,sizeof(*hdata),(void**)&hdata);
-      hdata->data=data;
-      exaHyperCubeSort(hdata,comm);
-      exaFree(hdata);
-      break;
-    default:
-      break;
-  }
-
-  if(loadBalance){
-    exaLoadBalance(data->array,comm);
-    exaSortLocal(data);
-  }
-
-  return 0;
-}
-
-int exaSort(exaArray array,exaDataType t,exaUInt offset,
-  exaSortAlgo algo,int loadBalance,exaComm comm)
+double get_scalar(struct array *a,uint i,uint offset,uint usize,
+    gs_dom type)
 {
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=array;
-  data->t[0]=t,data->offset[0]=offset;
-  data->nFields=1;
-  data->algo=algo;
-  data->loadBalance=loadBalance;
-
-  exaSortPrivate(data,comm);
-
-  exaFree(data);
-
-  return 0;
-}
-
-int exaSort2(exaArray array,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2,exaSortAlgo algo,
-  int loadBalance,exaComm comm)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=array;
-  data->t[0]=t1,data->offset[0]=offset1;
-  data->t[1]=t2,data->offset[1]=offset2;
-  data->nFields=2;
-  data->algo=algo;
-  data->loadBalance=loadBalance;
-
-  exaSortPrivate(data,comm);
-
-  exaFree(data);
-
-  return 0;
-}
-
-void exaArrayScan(exaLong out[2][1],exaArray array,exaComm comm)
-{
-  exaLong buf[2][1],in[1];
-  in[0]=exaArrayGetSize(array);
-  exaCommScan(comm,out,in,buf,1,exaLong_t,exaAddOp);
-}
-
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,
-  exaUInt offset,exaDataType type)
-{
-  char* v=(char*)exaArrayGetPointer(arr)+
-    i*exaArrayGetUnitSize(arr)+offset;
-
-  exaInt dataI;
-  exaUInt dataUi;
-  exaLong dataL;
-  exaULong dataUl;
-  exaScalar data;
+  char* v=(char*)a->ptr+i*usize+offset;
+  double data;
 
   switch(type){
-    case exaInt_t:
-      dataI=*((exaInt*)v);
-      data=dataI;
+    case gs_int:
+      data=*((uint*)v);
       break;
-    case exaUInt_t:
-      dataUi=*((exaUInt*)v);
-      data=dataUi;
+    case gs_long:
+      data=*((ulong*)v);
       break;
-    case exaLong_t:
-      dataL=*((exaLong*)v);
-      data=dataL;
-      break;
-    case exaULong_t:
-      dataUl=*((exaULong*)v);
-      data=dataUl;
-      break;
-    case exaScalar_t:
-      data=*((exaScalar*)v);
+    case gs_double:
+      data=*((double*)v);
       break;
     default:
       break;
@@ -167,24 +72,63 @@ exaScalar getValueAsScalar(exaArray arr,exaUInt i,
   return data;
 }
 
-void getArrayExtrema(void *extrema_,exaSortData data,
-  unsigned field,exaComm comm)
+void get_extrema(void *extrema_,sort_data data,uint field,struct comm* c)
 {
-  exaArray arr  =data->array;
-  exaUInt offset=data->offset[field];
-  exaDataType t =data->t[field];
+  struct array *a=data->a;
+  uint usize     =data->unit_size;
+  uint offset    =data->offset[field];
+  gs_dom t       =data->t[field];
 
-  exaScalar *extrema=(exaScalar *)extrema_;
+  double *extrema=(double *)extrema_;
 
-  exaInt size=exaArrayGetSize(arr);
+  sint size=a->n;
   if(size==0){
     extrema[0]=-DBL_MAX;
     extrema[1]=-DBL_MAX;
   } else {
-    extrema[0]=getValueAsScalar(arr,0     ,offset,t)*-1;
-    extrema[1]=getValueAsScalar(arr,size-1,offset,t);
+    extrema[0]=get_scalar(a,0     ,offset,usize,t)*-1;
+    extrema[1]=get_scalar(a,size-1,offset,usize,t);
   }
 
-  exaCommGop(comm,extrema,2,exaScalar_t,exaMaxOp);
+  double buf[2];
+  comm_allreduce(c,gs_double,gs_max,extrema,2,buf);
   extrema[0]*=-1;
+}
+
+int sort_private(sort_data data,struct comm *c){
+  struct comm dup; comm_dup(&dup,c);
+
+  int balance =data->balance;
+  exaSortAlgo algo=data->algo;
+
+  struct array *a=data->a;
+  size_t usize   =data->unit_size;
+
+  hypercube_sort_data hdata;
+
+  switch(algo){
+    case exaSortAlgoBinSort:
+      exaBinSort(data,c);
+      break;
+    case exaSortAlgoHyperCubeSort:
+      exaMalloc(1,&hdata);
+      hdata->data=data; hdata->probes=NULL; hdata->probe_cnt=NULL;
+      exaHyperCubeSort(hdata,&dup);
+      exaFree(hdata->probes); exaFree(hdata->probe_cnt);
+      exaFree(hdata);
+      break;
+    default:
+      break;
+  }
+
+  if(balance){
+    struct crystal cr; crystal_init(&cr,c);
+    load_balance(a,usize,c,&cr);
+    sort_local(data);
+    crystal_free(&cr);
+  }
+
+  comm_free(&dup);
+
+  return 0;
 }

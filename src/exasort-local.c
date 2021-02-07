@@ -1,49 +1,44 @@
 #include <exasort-impl.h>
 
-int exaSortLocal(exaSortData data)
+int sort_field(struct array *arr,size_t usize,gs_dom t,uint off,
+    buffer *buf,int keep)
 {
-  exaBuffer buf; exaBufferCreate(&buf,0);
+  uint nunits=arr->n;
+  void *ptr  =arr->ptr;
+  switch(t){
+    case gs_double:
+        gslib_sortp_double(buf,keep,(double*)((char*)ptr+off),
+            nunits,usize);
+      break;
+#if 0 //FIXME
+    case gs_float:
+        gslib_sortp_float (buf,keep,(float *)((char*)ptr+off),
+            nunits,usize);
+      break;
+#endif
+    case gs_long:
+      gslib_sortp_ull(buf,keep,(ulong *)((char*)ptr+off),nunits,usize);
+      break;
+    case gs_int:
+      gslib_sortp_ui (buf,keep,(uint  *)((char*)ptr+off),nunits,usize);
+      break;
+    default:
+      break;
+  }
 
-  exaArray arr=data->array;
-  int nFields=data->nFields;
-  int i=nFields-1;
+  return 0;
+}
 
-  exaSortField(arr,data->t[i],data->offset[i],buf,0),i--;
+int sort_local(sort_data sd)
+{
+  struct array *a=sd->a;
+  buffer *buf    =&sd->buf;
+  size_t usize   =sd->unit_size;
+  int i          =sd->nfields-1;
+
+  sort_field(a,usize,sd->t[i],sd->offset[i],buf,0),i--;
   while(i>=0)
-    exaSortField(arr,data->t[i],data->offset[i],buf,1),i--;
+    sort_field(a,usize,sd->t[i],sd->offset[i],buf,1),i--;
 
-  exaSortPermuteBuf(arr,buf);
-  exaFree(buf);
-}
-
-int exaSortArray(exaArray arr,exaDataType t,exaUInt offset)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=arr,data->nFields=1;
-  data->t[0]=t,data->offset[0]=offset;
-  exaSortLocal(data);
-  exaFree(data);
-}
-
-int exaSortArray2(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=arr,data->nFields=2;
-  data->t[0]=t1,data->offset[0]=offset1;
-  data->t[1]=t2,data->offset[1]=offset2;
-  exaSortLocal(data);
-  exaFree(data);
-}
-
-int exaSortArray3(exaArray arr,exaDataType t1,exaUInt offset1,
-  exaDataType t2,exaUInt offset2,exaDataType t3,exaUInt offset3)
-{
-  exaSortData data; exaMallocArray(1,sizeof(*data),(void**)&data);
-  data->array=arr,data->nFields=3;
-  data->t[0]=t1,data->offset[0]=offset1;
-  data->t[1]=t2,data->offset[1]=offset2;
-  data->t[2]=t3,data->offset[2]=offset3;
-  exaSortLocal(data);
-  exaFree(data);
+  sarray_permute_buf_(sd->align,usize,a->ptr,a->n,buf);
 }

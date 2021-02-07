@@ -1,30 +1,26 @@
 #include <exasort-impl.h>
 
 /* assumes array is locally sorted */
-int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
+int set_bin(uint **proc_,sort_data data,uint field,struct comm *c)
 {
-  exaArray arr  =data->array;
-  exaDataType t =data->t[0];
-  exaUInt offset=data->offset[0];
+  struct array *a=data->a;
+  gs_dom t  =data->t[field];
+  uint offset    =data->offset[field];
 
-  exaInt np=exaCommSize(comm);
+  sint np=c->np;
+  uint size=a->n; exaCalloc(size,proc_); uint *proc=*proc_;
 
-  exaInt size=exaArrayGetSize(arr);
-  exaCalloc(size,proc_);
   if(size==0) return 0;
 
-  exaUInt *proc=*proc_;
+  double extrema[2]; get_extrema((void*)extrema,data,field,c);
+  double range=extrema[1]-extrema[0];
 
-  exaScalar extrema[2];
-  getArrayExtrema((void*)extrema,data,0,comm);
-  exaScalar range=extrema[1]-extrema[0];
-
-  exaUInt id=0;
-  exaUInt index=0;
+  uint id=0;
+  uint index=0;
   do{
-    exaScalar end=extrema[0]+(range/np)*(id+1);
+    double end=extrema[0]+(range/np)*(id+1);
     while(index<size){
-      exaScalar val=getValueAsScalar(arr,index,offset,t);
+      double val=get_scalar(a,index,offset,data->unit_size,t);
       if(val<=end) proc[index++]=id;
       else break;
     }
@@ -34,19 +30,22 @@ int setBin(exaUInt **proc_,exaSortData data,exaComm comm)
     proc[index]=np-1;
 }
 
-int exaBinSort(exaSortData data,exaComm comm)
+int exaBinSort(sort_data data,struct comm *c)
 {
   // Local sort
-  exaSortLocal(data);
+  sort_local(data);
 
   // Set destination bin
-  exaUInt *proc;
-  setBin(&proc,data,comm);
+  uint *proc;
+  set_bin(&proc,data,0,c);
 
   // Transfer to destination processor
-  exaArrayTransferExt(data->array,proc,comm);
+  struct crystal cr; crystal_init(&cr,c);
+  sarray_transfer_ext_(data->a,data->unit_size,proc,sizeof(uint),&cr);
+  crystal_free(&cr);
+
   exaFree(proc);
 
   // Locally sort again
-  exaSortLocal(data);
+  sort_local(data);
 }

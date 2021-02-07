@@ -1,10 +1,9 @@
 #ifndef _EXASORT_IMPL_H_
 #define _EXASORT_IMPL_H_
 
+#include <exasort.h>
 #include <exa-impl.h>
 #include <exa-memory.h>
-
-#include <exasort.h>
 
 #define min(a,b) ((a)<(b) ? (a) : (b))
 #define max(a,b) ((a)>(b) ? (a) : (b))
@@ -12,45 +11,43 @@
 // exaSort: general functions
 //
 typedef struct{
-  int nFields;
-  exaArray array;
-  exaDataType t[3];
-  exaUInt offset[3];
-  int loadBalance;
+  int nfields;
+  gs_dom t[3];
+  uint offset[3];
+
+  struct array *a;
+  size_t unit_size,align;
+
+  int balance;
   exaSortAlgo algo;
-} exaSortData_private;
-typedef exaSortData_private* exaSortData;
 
-exaScalar getValueAsScalar(exaArray arr,exaUInt i,
-  exaUInt offset,exaDataType type);
-void getArrayExtrema(void *extrema_,exaSortData data,
-  unsigned field,exaComm comm);
+  buffer buf;
+} sort_data_private;
 
-int setDestination(exaUInt *proc,int np,exaULong start,
-  exaUInt size,exaULong nElements);
+typedef sort_data_private* sort_data;
 
-int exaSortLocal(exaSortData data);
-int exaSortPermuteBuf(exaArray arr,exaBuffer buf);
-int exaSortField(exaArray arr,exaDataType t,exaUInt fieldOffset,
-  exaBuffer buf,int keep);
+double get_scalar(struct array *a,uint i,uint offset,uint usize,
+  gs_dom type);
+void get_extrema(void *extrema_,sort_data data,uint field,struct comm *c);
+int set_dest(uint *proc,uint np,ulong start,uint size,ulong nelem);
+int load_balance(struct array *a,size_t size,struct comm *c,
+    struct crystal *cr);
+int sort_local(sort_data data);
+int sort_private(sort_data data,struct comm *c);
 //
 // exaBinSort
 //
-int exaBinSort(exaSortData data,exaComm comm);
+int exaBinSort(sort_data data,struct comm *c);
 //
 // exaHyperCubeSort
 //
 typedef struct{
-  exaSortData data;
+  sort_data data;
   int nProbes;
-  exaScalar *probes;
-  exaULong *probeCounts;
-  exaUInt threshold;
-} exaHyperCubeSortData_private;
-typedef exaHyperCubeSortData_private* exaHyperCubeSortData;
+  double *probes;
+  slong *probe_cnt;
+} hypercube_sort_data_private;
+typedef hypercube_sort_data_private* hypercube_sort_data;
 
-int initProbes(exaHyperCubeSortData data,exaComm comm);
-int updateProbeCounts(exaHyperCubeSortData data,exaComm comm);
-int exaHyperCubeSort(exaHyperCubeSortData data,exaComm comm);
-
+int exaHyperCubeSort(hypercube_sort_data data,struct comm *c);
 #endif // exasort-impl
